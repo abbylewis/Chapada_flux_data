@@ -129,14 +129,15 @@ calculate_flux <- function(start_date = NULL,
               .groups = "drop") 
   
   #Filter
-  start_cutoff <- 200 #Buffer of time after flux window
-  end_cutoff <- 600
+  start_cutoff <- 80 #Buffer of time after flux window
+  end_cutoff <- 680
   filtered_data <- grouped_data %>%
     group_by(group, Fluxing_Chamber)  %>%
-    mutate(n = sum(Flux_Status == 3),
-           cutoff = NA) %>%
+    mutate(n = sum(Manifold_Timer > start_cutoff &
+                     Manifold_Timer < end_cutoff)) %>%
     #Remove earlier measurements
-    filter(Flux_Status == 3,
+    filter(Manifold_Timer > start_cutoff,
+           Manifold_Timer < end_cutoff,
            max(change_s) < 1000, #After ~15 min there is probably a problem
            n < 200 #probably some issue if this many measurements are taken
     ) 
