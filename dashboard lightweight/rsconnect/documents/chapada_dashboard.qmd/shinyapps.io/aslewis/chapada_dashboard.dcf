@@ -1,0 +1,14 @@
+name: chapada_dashboard
+title: chapada_dashboard
+username: aslewis
+account: aslewis
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15523982
+bundleId: 10937514
+url: https://aslewis.shinyapps.io/chapada_dashboard/
+version: 1
+quarto_version: 1.5.57
+quarto_engines: knitr
+asMultiple: FALSE
+asStatic: FALSE

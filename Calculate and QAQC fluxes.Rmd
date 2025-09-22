@@ -1,0 +1,58 @@
+---
+title: "Generate and QAQC fluxes"
+author: "Abby Lewis"
+date: "2024-11-13"
+output: html_document
+---
+
+This is a high-level script for generating and QAQCing fluxes. Functionally identical to R/generate_L1_fluxes.R, but designed to be a little more user-friendly.
+
+USER INPUT HERE
+
+```{r setup, include=FALSE}
+# Whether you are a new user or your dropbox authentication is already complete
+new_user <- TRUE 
+# Whether you want to reprocess all flux calculations or just new data
+reprocess <- FALSE 
+#Folder containing downloaded LGR data
+lgr_folder <- here::here("Raw_data","dropbox_downloads") 
+```
+
+Run all calculations
+
+```{r}
+# load functions/packages 
+knitr::opts_chunk$set(echo = TRUE)
+source(here::here("R","qaqc.R"))
+source(here::here("R","download_new_data.R"))
+source(here::here("R","calculate_flux.R"))
+library(tidyverse)
+
+#Check for new data and download locally
+drop_auth(new_user = new_user)
+lgr <- download_new_data(lgr_folder)
+
+#Calculate fluxes, generating the L0 file
+if(reprocess){
+  L0 <- calculate_flux(start_date = "2021-01-01", 
+                       end_date = Sys.Date()+1,
+                       modif_start_date = NULL,
+                       reprocess = reprocess)
+} else {
+  L0 <- calculate_flux()
+}
+
+#QAQC, generating the L1 file
+data <- qaqc(here::here("processed_data","L0.csv"))
+```
+
+Some visualizations [placeholder]
+
+```{r}
+library(tidyverse)
+l1 <- read_csv(here::here("L1.csv")) %>%
+  mutate(TIMESTAMP = as_datetime(TIMESTAMP, tz = "America/New_York"))
+
+
+```
+

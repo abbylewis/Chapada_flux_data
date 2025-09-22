@@ -1,0 +1,211 @@
+---
+title: "New format"
+author: "Abby Lewis"
+date: "2025-03-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+Load and format data
+
+```{r}
+days_to_plot <- 1
+today <- Sys.Date()
+#today <- as.Date("2025-05-21")
+slopes_l0 <- read_csv(here::here("processed_data", "L0.csv"), 
+                      show_col_types = F) 
+
+slopes_recent <- slopes_l0 %>%
+  filter(as.Date(TIMESTAMP, tz = "EST") >= Sys.Date()-1,
+         #hour(TIMESTAMP) >= 16,
+         #as.Date(TIMESTAMP) <= today,
+         #TIMESTAMP > (today - days(days_to_plot))
+         ) %>% 
+  rename(chamber = MIU_VALVE) %>%
+  pivot_longer(matches("CH4_|N2O_|CO2_"), 
+               names_to = c("gas", ".value"), 
+               names_sep="_" ) %>%
+  filter(!gas == "Flag")
+```
+
+Generate plots
+
+```{r}
+#color.gradient=c('blue4','blue3','turquoise4','lightseagreen',
+#                 'mediumseagreen','limegreen','yellowgreen','yellow2',
+#                 'darkgoldenrod2','darkorange2','orangered1','red2')
+
+jpeg("../figures/slopes.jpg", width = 7, height = 3, units = "in", res = 300)
+p1 <- slopes_recent %>%
+  mutate(chamber = as.factor(chamber),
+         type = case_when(chamber %in% c(110, 120, 230, 240) ~ "air",
+                          chamber %in% c(10, 20, 40, 70, 80, 90, 
+                                         130, 150, 160, 180, 190, 220) ~ "plant",
+                          .default = "soil")) %>%
+  ggplot(aes(x = TIMESTAMP, y = slope, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_point(size = 0.5) +
+  geom_line() +
+  #geom_vline(xintercept = as_datetime("2025-05-07 14:00:00"), linetype = "dashed", color = "grey70") +
+  ggh4x::facet_grid2(gas~type, scales = "free_y") +
+  #scale_color_manual(values = color.gradient)+
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+  theme_bw()+
+  theme(legend.key.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.5, "cm"))
+p1
+dev.off()
+
+jpeg("../figures/slopes2.jpg", width = 7, height = 6, units = "in", res = 300)
+slopes_recent %>%
+  mutate(chamber = as.factor(chamber)) %>%
+  ggplot(aes(x = TIMESTAMP, y = slope, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_point(size = 0.5) +
+  geom_line() +
+  ggh4x::facet_grid2(chamber~gas, independent = "y", scales = "free_y") +
+  #scale_color_manual(values = color.gradient)+
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+  theme_bw()
+dev.off()
+
+jpeg("../figures/R2.jpg", width = 7, height = 6, units = "in", res = 300)
+slopes_recent %>%
+  mutate(chamber = as.factor(chamber)) %>%
+  ggplot(aes(x = TIMESTAMP, y = R2, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_point(size = 0.5) +
+  #scale_color_manual(values = color.gradient)+
+  ggh4x::facet_grid2(chamber~gas, scales = "free_y")+
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+  theme_bw()
+dev.off()
+
+p <- slopes_recent %>% 
+  mutate(chamber = as.factor(chamber)) %>%
+  ggplot(aes(x = abs(slope), y = R2, color = chamber)) +
+  geom_point() +
+  ylim(c(0,1)) +
+  ggh4x::facet_grid2(.~gas, independent = "x", scales = "free_x") +
+  #scale_color_manual(values = color.gradient)+
+  theme_bw()
+plotly::ggplotly(p)
+
+p <- slopes_recent %>%
+  filter(chamber %in% c(10, 20, 40, 70, 80, 90, 130, 150, 160, 180, 190, 220)) %>%
+  mutate(chamber = as.factor(chamber),
+         Hour = hour(TIMESTAMP)) %>%
+  ggplot(aes(x = Hour, y = slope, color = chamber)) +
+  geom_point(size = 0.5) +
+  geom_smooth(span = 0.5, se = F) +
+  facet_wrap(~gas, scales = "free_y") +
+  #scale_color_manual(values = color.gradient)+
+  theme_bw()
+plotly::ggplotly(p)
+
+slopes_recent %>%
+  filter(gas == "CH4") %>%
+  mutate(chamber = as.factor(chamber)) %>%
+  #round time to 6hr intervals
+  mutate(TIMESTAMP = round_date(TIMESTAMP, "6 hours")) %>%
+  #mutate(TIMESTAMP = as.Date(TIMESTAMP)) %>%
+  group_by(chamber, gas, TIMESTAMP) %>%
+  summarize(mean = mean(slope, na.rm = T)) %>%
+  group_by(gas, TIMESTAMP) %>%
+  mutate(rank = rank(mean, na.last = "keep", ties.method = "first"),
+         TIMESTAMP = as.Date(TIMESTAMP)) %>%
+  ggplot(aes(x = chamber, y = rank, 
+             #color = TIMESTAMP>as_datetime("2025-04-23 15:00:00")
+             )) +
+  geom_boxplot()+
+  #geom_jitter(position = position_jitterdodge(jitter.width = 0.2)) +
+  #scale_color_manual(values = c("grey20", "lightblue3"),
+  #                   labels = c("before replacing tube 9",
+  #                              "after replacing tube 9"),
+  #                   name = "Time period") +
+  #scale_color_viridis_c(trans = "date") +
+  ggh4x::facet_grid2(.~gas) +
+  theme_bw()+
+  theme(legend.key.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.5, "cm"))
+
+#plotly::ggplotly(p1)
+
+jpeg("../figures/slopes_season.jpg", width = 7, height = 3, units = "in", res = 300)
+slopes_l0 %>%
+  filter(as.Date(TIMESTAMP) > as.Date("2024-01-01")) %>% 
+  rename(chamber = MIU_VALVE) %>%
+  mutate(CH4_slope_ppm_per_day = ifelse(CH4_slope_ppm_per_day > 20 & 
+                                          CH4_R2 < 0.9,
+                                        NA, 
+                                        CH4_slope_ppm_per_day)) %>%
+  pivot_longer(matches("CH4_|N2O_|CO2_"), 
+               names_to = c("gas", ".value"), 
+               names_sep="_" ) %>%
+  filter(!gas == "Flag")%>%
+  mutate(chamber = as.factor(chamber)) %>%
+  ggplot(aes(x = TIMESTAMP, y = slope, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_line(linewidth = 0.5) +
+  #geom_vline(xintercept = as_datetime("2025-05-07 14:00:00"), linetype = "dashed", color = "grey70") +
+  facet_wrap(~gas, scales = "free_y", nrow = 1) +
+  #scale_color_manual(values = color.gradient)+
+  scale_x_datetime(date_breaks = "1 month", date_labels = "%b") +
+  theme_bw()+
+  theme(legend.key.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.5, "cm"),
+        axis.title.x = element_blank())
+dev.off()
+
+jpeg("../figures/slopes_season_daily.jpg", width = 7, height = 3, units = "in", res = 300)
+slopes_l0 %>%
+  filter(as.Date(TIMESTAMP) > as.Date("2024-01-01")) %>% 
+  rename(chamber = MIU_VALVE) %>%
+  mutate(CH4_slope_ppm_per_day = ifelse(CH4_slope_ppm_per_day > 20 & 
+                                          CH4_R2 < 0.9,
+                                        NA, 
+                                        CH4_slope_ppm_per_day),
+         Date = as.Date(TIMESTAMP)) %>%
+  pivot_longer(matches("CH4_|N2O_|CO2_"), 
+               names_to = c("gas", ".value"), 
+               names_sep="_" ) %>%
+  filter(!gas == "Flag")%>%
+  mutate(chamber = as.factor(chamber)) %>%
+  group_by(chamber, gas, Date) %>%
+  summarize(daily_mean_slope = mean(slope, na.rm = T)) %>%
+  ggplot(aes(x = Date, y = daily_mean_slope, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_line() +
+  #geom_vline(xintercept = as_datetime("2025-05-07 14:00:00"), linetype = "dashed", color = "grey70") +
+  facet_wrap(~gas, scales = "free_y", nrow = 1) +
+  #scale_color_manual(values = color.gradient)+
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme_bw()+
+  theme(legend.key.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.5, "cm"),
+        axis.title.x = element_blank())
+dev.off()
+
+p1 <- slopes_recent %>%
+  mutate(chamber = as.factor(chamber),
+         bare = ifelse(chamber %in% c(110, 120, 230, 240),
+                       "air",
+                       "chamber")) %>%
+  ggplot(aes(x = TIMESTAMP, y = slope, color = chamber)) +
+  geom_hline(yintercept = 0, color = "grey70") +
+  geom_point(size = 0.5) +
+  geom_line() +
+  #geom_vline(xintercept = as_datetime("2025-05-07 14:00:00"), linetype = "dashed", color = "grey70") +
+  ggh4x::facet_grid2(gas~bare, scales = "free_y") +
+  #scale_color_manual(values = color.gradient)+
+  scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+  theme_bw()+
+  theme(legend.key.spacing.y = unit(0, "cm"),
+        legend.key.size = unit(0.5, "cm"))
+plotly::ggplotly(p1)
+```
+

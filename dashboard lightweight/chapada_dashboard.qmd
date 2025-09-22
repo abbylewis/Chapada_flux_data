@@ -1,0 +1,145 @@
+---
+title: "Chapada Stem Data Dashboard"
+title-block-banner: true
+format: 
+  html:
+    page-layout: full
+server: shiny
+---
+
+<style>
+.quarto-title-banner {
+  background-image: url("images/chapada.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Make it taller */
+  min-height: 200px;
+  
+  color: white; 
+}
+
+.quarto-title-banner .title, 
+.quarto-title-banner .subtitle, 
+.quarto-title-banner .author {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); /* make text readable */
+}
+
+</style>
+
+```{r, message=FALSE, warning=FALSE}
+#| context: setup
+
+library(tidyverse)
+library(plotly)
+folder = "." #Switch to "." for deployment or "dashboard lightweight" if local
+
+#Format data
+slopes_l0 <- read_csv(paste0(folder, "/data/L0.csv"), 
+                      show_col_types = F) %>%
+  filter(!is.na(location),
+         n>30) %>%
+  mutate(TIMESTAMP = lubridate::force_tz(TIMESTAMP, tzone = "Etc/GMT-3")) %>% 
+  rename(chamber = Fluxing_Chamber) %>%
+  mutate(chamber = as.factor(chamber)) %>%
+  pivot_longer(matches("CH4_|CO2_"), 
+               names_to = c("gas", ".value"), 
+               names_sep="_" ) %>%
+  filter(!gas == "Flag")
+
+#chamber_levels = c("c_1_amb", "c_2_amb", "c_3_e0.75", "c_4_e1.5", "c_5_e2.25",
+#                   "c_6_e2.25", "c_7_e3.0", "c_8_e3.75", "c_9_e3.75",
+#                   "c_10_e4.5", "c_11_e5.25", "c_12_e6.0")
+
+#color.gradient=c('blue4','blue3','turquoise4','lightseagreen',
+#                 'mediumseagreen','limegreen','yellowgreen','yellow2',
+#                 'darkgoldenrod2','darkorange2','orangered1','red2')
+```
+
+```{r}
+#| panel: fill
+plotlyOutput('plot1', height = 700)
+```
+
+```{r}
+#| panel: sidebar
+
+h4("Plot Specifications")
+
+dateInput('today', 'Today', 
+          min = "2025-05-17", max = Sys.Date(), 
+          value = Sys.Date())
+br()
+sliderInput('days_to_plot', 'Days of historical data to plot', 
+            0, 
+            round(as.numeric(difftime(Sys.Date(), "2025-05-17", units = "days"))),
+            value = 5)
+br()
+checkboxGroupInput('gases', 'Gases to plot', 
+            choices = c("CH4", "CO2"),
+            selected = c("CH4", "CO2"))
+br()
+radioButtons("daily", label = "Time step", 
+             choices = c("Hourly", "Daily mean"), selected = ("Hourly"))
+br()
+radioButtons("metric", label = "Metric", 
+             choices = c("Slope", "R2"), selected = ("Slope"))
+```
+
+```{r}
+#| context: server
+#Code for plots
+output$plot1 <- renderPlotly({
+  slopes_recent <- slopes_l0 %>%
+    filter(as.Date(TIMESTAMP) <= input$today,
+           TIMESTAMP > (input$today - days(input$days_to_plot))) 
+  
+  if(input$daily == "Daily mean"){
+    slopes_recent2 <- slopes_recent %>%
+      mutate(TIMESTAMP = as.Date(TIMESTAMP),
+             TIMESTAMP = as.POSIXct(TIMESTAMP)) %>%
+      group_by(TIMESTAMP, chamber, gas, location) %>%
+      summarize(slope = mean(slope, na.rm = T),
+                R2 = mean(R2, na.rm = T),
+                .groups = "drop")
+  } else {
+    slopes_recent2 <- slopes_recent
+  }
+  
+  if(input$metric == "Slope"){
+    p1 <- slopes_recent2 %>%
+      mutate(R2 = round(R2, 2)) %>%
+      filter(gas %in% input$gases) %>%
+      ggplot(aes(x = TIMESTAMP, y = slope, 
+                     color = chamber, label = R2)) +
+      geom_hline(yintercept = 0, color = "grey70") +
+      geom_point(size = 0.5) +
+      geom_vline(xintercept = as.numeric(as_datetime("2025-05-28 16:13:00", 
+                                                     tz = "America/New_York")))+
+      geom_line() +
+      facet_grid(gas~location, scales = "free_y") +
+      scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+      theme_bw()+
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
+  } else{
+    p1 <- slopes_recent2 %>%
+      filter(gas %in% input$gases) %>%
+      ggplot(aes(x = TIMESTAMP, y = R2, 
+                     color = chamber)) +
+      geom_hline(yintercept = 0, color = "grey70") +
+      geom_point(size = 0.5) +
+      geom_vline(xintercept = as.numeric(as_datetime("2025-05-28 16:13:00", 
+                                                     tz = "America/New_York")))+
+      geom_line() +
+      facet_grid(gas~location, scales = "free_y") +
+      scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+      theme_bw()+
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
+  }
+  
+  plotly::ggplotly(p1, tooltip=c("chamber", "R2", "TIMESTAMP"))
+})
+```
