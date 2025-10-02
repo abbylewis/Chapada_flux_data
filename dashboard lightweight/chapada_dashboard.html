@@ -100,7 +100,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div id="today" class="shiny-date-input form-group shiny-input-container">
 <label class="control-label" id="today-label" for="today">Today</label>
-<input type="text" class="form-control" aria-labelledby="today-label" title="Date format: yyyy-mm-dd" data-date-language="en" data-date-week-start="0" data-date-format="yyyy-mm-dd" data-date-start-view="month" data-min-date="2025-09-18" data-max-date="2025-09-22" data-initial-date="2025-09-22" data-date-autoclose="true" data-date-dates-disabled="null" data-date-days-of-week-disabled="null">
+<input type="text" class="form-control" aria-labelledby="today-label" title="Date format: yyyy-mm-dd" data-date-language="en" data-date-week-start="0" data-date-format="yyyy-mm-dd" data-date-start-view="month" data-min-date="2025-09-18" data-max-date="2025-10-01" data-initial-date="2025-10-01" data-date-autoclose="true" data-date-dates-disabled="null" data-date-days-of-week-disabled="null">
 </div>
 </div>
 <div class="cell-output-display">
@@ -109,13 +109,15 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div class="form-group shiny-input-container">
 <label class="control-label" id="days_to_plot-label" for="days_to_plot">Days of historical data to plot</label>
-<input class="js-range-slider" id="days_to_plot" data-skin="shiny" data-min="0" data-max="3" data-from="2" data-step="1" data-grid="true" data-grid-num="3" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number">
+<input class="js-range-slider" id="days_to_plot" data-skin="shiny" data-min="0" data-max="12" data-from="2" data-step="1" data-grid="true" data-grid-num="6" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number">
 </div>
 </div>
 <div class="cell-output-display">
 <br>
 </div>
 <div class="cell-output-display">
+<div class="shiny-split-layout">
+<div style="width: 50%;">
 <div id="gases" class="form-group shiny-input-checkboxgroup shiny-input-container" role="group" aria-labelledby="gases-label">
 <label class="control-label" id="gases-label" for="gases">Gases to plot</label>
 <div class="shiny-options-group">
@@ -133,11 +135,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-</div>
-<div class="cell-output-display">
 <br>
-</div>
-<div class="cell-output-display">
 <div id="daily" class="form-group shiny-input-radiogroup shiny-input-container" role="radiogroup" aria-labelledby="daily-label">
 <label class="control-label" id="daily-label" for="daily">Time step</label>
 <div class="shiny-options-group">
@@ -156,6 +154,69 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+<div style="width: 50%;">
+<div id="chambers" class="form-group shiny-input-checkboxgroup shiny-input-container" role="group" aria-labelledby="chambers-label">
+<label class="control-label" id="chambers-label" for="chambers">Chambers to plot</label>
+<div class="shiny-options-group">
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="10" checked="checked">
+<span>10</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="20" checked="checked">
+<span>20</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="30" checked="checked">
+<span>30</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="40" checked="checked">
+<span>40</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="50" checked="checked">
+<span>50</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="60" checked="checked">
+<span>60</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="70" checked="checked">
+<span>70</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="80" checked="checked">
+<span>80</span>
+</label>
+</div>
+<div class="checkbox">
+<label>
+<input type="checkbox" name="chambers" value="90" checked="checked">
+<span>90</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p>
@@ -163,13 +224,16 @@ ul.task-list li input[type="checkbox"] {
 library(tidyverse)
 library(plotly)
 
-#chamber_levels = c("c_1_amb", "c_2_amb", "c_3_e0.75", "c_4_e1.5", "c_5_e2.25",
-#                   "c_6_e2.25", "c_7_e3.0", "c_8_e3.75", "c_9_e3.75",
-#                   "c_10_e4.5", "c_11_e5.25", "c_12_e6.0")
+chamber_levels = c("20 (Relatively drier)",  "30 (Relatively drier)",  
+                   "50 (Relatively wetter)", "80 (Relatively wetter)",
+                   "90 (Termites)", "10 (Relatively drier)", 
+                   "40 (Relatively wetter)", "40 (Relatively drier)",
+                   "50 (Relatively drier)",  "60 (Relatively wetter)", 
+                   "70 (Relatively wetter)")
 
-#color.gradient=c('blue4','blue3','turquoise4','lightseagreen',
-#                 'mediumseagreen','limegreen','yellowgreen','yellow2',
-#                 'darkgoldenrod2','darkorange2','orangered1','red2')
+color.gradient=case_when(grepl("drier", chamber_levels)~"#E4D966",
+                         grepl("wetter", chamber_levels)~"#779B3E",
+                         grepl("Termites", chamber_levels)~"#673A0A")
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
@@ -185,6 +249,7 @@ slopes_l0 <- read_csv("https://raw.githubusercontent.com/abbylewis/Chapada_flux_
                             location == "high" ~ "Relatively drier",
                           .default = "Relatively wetter"
                           ),
+         chamber_long = paste0(chamber, " (", type, ")"),
          chamber = as.factor(chamber)) %>%
   pivot_longer(matches("CH4_|CO2_"), 
                names_to = c("gas", ".value"), 
@@ -203,7 +268,7 @@ updateSliderInput(inputId = 'days_to_plot',
 output$plot1 <- renderPlotly({
   slopes_recent <- slopes_l0 %>%
     filter(as.Date(TIMESTAMP) <= input$today,
-           TIMESTAMP > (input$today - days(input$days_to_plot))) 
+           TIMESTAMP > (input$today - days(input$days_to_plot)))
   
   if(input$daily == "Daily mean"){
     slopes_recent2 <- slopes_recent %>%
@@ -219,7 +284,8 @@ output$plot1 <- renderPlotly({
   
   p1 <- slopes_recent2 %>%
     mutate(R2 = round(R2, 2)) %>%
-    filter(gas %in% input$gases) %>%
+    filter(gas %in% input$gases,
+           chamber %in% input$chambers) %>%
     ggplot(aes(x = TIMESTAMP, y = slope, color = type,
                group = chamber, label = R2)) +
     geom_hline(yintercept = 0, color = "grey70") +
@@ -234,7 +300,6 @@ output$plot1 <- renderPlotly({
                        name = "")+
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
-  
   plotly::ggplotly(p1, tooltip=c("chamber", "R2", "TIMESTAMP"))
 })
 </script>

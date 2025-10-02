@@ -34,13 +34,16 @@ server: shiny
 library(tidyverse)
 library(plotly)
 
-#chamber_levels = c("c_1_amb", "c_2_amb", "c_3_e0.75", "c_4_e1.5", "c_5_e2.25",
-#                   "c_6_e2.25", "c_7_e3.0", "c_8_e3.75", "c_9_e3.75",
-#                   "c_10_e4.5", "c_11_e5.25", "c_12_e6.0")
+chamber_levels = c("20 (Relatively drier)",  "30 (Relatively drier)",  
+                   "50 (Relatively wetter)", "80 (Relatively wetter)",
+                   "90 (Termites)", "10 (Relatively drier)", 
+                   "40 (Relatively wetter)", "40 (Relatively drier)",
+                   "50 (Relatively drier)",  "60 (Relatively wetter)", 
+                   "70 (Relatively wetter)")
 
-#color.gradient=c('blue4','blue3','turquoise4','lightseagreen',
-#                 'mediumseagreen','limegreen','yellowgreen','yellow2',
-#                 'darkgoldenrod2','darkorange2','orangered1','red2')
+color.gradient=case_when(grepl("drier", chamber_levels)~"#E4D966",
+                         grepl("wetter", chamber_levels)~"#779B3E",
+                         grepl("Termites", chamber_levels)~"#673A0A")
 ```
 
 ```{r}
@@ -63,12 +66,32 @@ sliderInput('days_to_plot', 'Days of historical data to plot',
             round(as.numeric(difftime(Sys.Date(), "2025-09-19", units = "days"))),
             value = 2)
 br()
-checkboxGroupInput('gases', 'Gases to plot', 
-            choices = c("CH4", "CO2"),
-            selected = c("CH4", "CO2"))
-br()
-radioButtons("daily", label = "Time step", 
-             choices = c("Hourly", "Daily mean"), selected = ("Hourly"))
+
+splitLayout(
+  cellWidths = c("50%", "50%"),
+  
+  # Left column
+  tagList(
+    checkboxGroupInput(
+      'gases', 'Gases to plot', 
+      choices = c("CH4", "CO2"),
+      selected = c("CH4", "CO2")
+    ),
+    br(),
+    radioButtons(
+      "daily", label = "Time step", 
+      choices  = c("Hourly", "Daily mean"), 
+      selected = "Hourly"
+    )
+  ),
+  
+  #Right column
+  checkboxGroupInput(
+    'chambers', 'Chambers to plot', 
+    choices = as.character(seq(10, 90, 10)),
+    selected = as.character(seq(10, 90, 10))
+  )
+)
 ```
 
 ```{r}
@@ -86,6 +109,7 @@ slopes_l0 <- read_csv("https://raw.githubusercontent.com/abbylewis/Chapada_flux_
                             location == "high" ~ "Relatively drier",
                           .default = "Relatively wetter"
                           ),
+         chamber_long = paste0(chamber, " (", type, ")"),
          chamber = as.factor(chamber)) %>%
   pivot_longer(matches("CH4_|CO2_"), 
                names_to = c("gas", ".value"), 
@@ -104,7 +128,7 @@ updateSliderInput(inputId = 'days_to_plot',
 output$plot1 <- renderPlotly({
   slopes_recent <- slopes_l0 %>%
     filter(as.Date(TIMESTAMP) <= input$today,
-           TIMESTAMP > (input$today - days(input$days_to_plot))) 
+           TIMESTAMP > (input$today - days(input$days_to_plot)))
   
   if(input$daily == "Daily mean"){
     slopes_recent2 <- slopes_recent %>%
@@ -120,7 +144,8 @@ output$plot1 <- renderPlotly({
   
   p1 <- slopes_recent2 %>%
     mutate(R2 = round(R2, 2)) %>%
-    filter(gas %in% input$gases) %>%
+    filter(gas %in% input$gases,
+           chamber %in% input$chambers) %>%
     ggplot(aes(x = TIMESTAMP, y = slope, color = type,
                group = chamber, label = R2)) +
     geom_hline(yintercept = 0, color = "grey70") +
@@ -135,7 +160,6 @@ output$plot1 <- renderPlotly({
                        name = "")+
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
-  
   plotly::ggplotly(p1, tooltip=c("chamber", "R2", "TIMESTAMP"))
 })
 ```
