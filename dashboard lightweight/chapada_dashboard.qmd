@@ -44,7 +44,34 @@ chamber_levels = c("20 (Relatively drier)",  "30 (Relatively drier)",
 color.gradient=case_when(grepl("drier", chamber_levels)~"#E4D966",
                          grepl("wetter", chamber_levels)~"#779B3E",
                          grepl("Termites", chamber_levels)~"#673A0A")
+
+#For testing
+input <- list()
+input$today <- Sys.Date()
+input$today_co2 <- Sys.Date()
+input$today_met <- Sys.Date()
+
+input$days_to_plot <- 3
+input$days_to_plot_co2 <- 3
+input$days_to_plot_met <- 3
+
+input$daily <- "Hourly"
+input$daily_co2 <- "Hourly"
+input$daily_met <- "Hourly"
+
+input$gases_part <- "NEE"
+input$gases <- c("CH4", "CO2")
+input$metrics_met <- c("SlrFD_W_Avg", "AirT_C_Avg", "Rain_mm_Tot")
+
+input$chambers <- c(10,20,30,40,50,60,70,80)
+input$chambers_co2 <- c(10,20,30,40,50,60,70,80)
 ```
+
+::: {.row}
+
+::: {.panel-tabset}
+
+## Fluxes
 
 ```{r}
 #| panel: fill
@@ -64,7 +91,7 @@ br()
 sliderInput('days_to_plot', 'Days of historical data to plot', 
             0, 
             round(as.numeric(difftime(Sys.Date(), "2025-09-19", units = "days"))),
-            value = 2)
+            value = 3)
 br()
 
 splitLayout(
@@ -93,6 +120,96 @@ splitLayout(
   )
 )
 ```
+
+## Partitioned CO~2~
+
+```{r}
+#| panel: fill
+plotlyOutput('plot2', height = 500)
+```
+
+```{r}
+#| panel: sidebar
+
+h4("Plot Specifications")
+
+dateInput('today_co2', 'Today', 
+          min = "2025-09-18", 
+          max = Sys.Date(),
+          value = Sys.Date())
+br()
+sliderInput('days_to_plot_co2', 'Days of historical data to plot', 
+            0, 
+            round(as.numeric(difftime(Sys.Date(), "2025-09-19", units = "days"))),
+            value = 3)
+br()
+
+splitLayout(
+  cellWidths = c("50%", "50%"),
+  
+  # Left column
+  tagList(
+    checkboxGroupInput(
+      'gases_part', 'Gases to plot', 
+      choices = c("GPP", "NEE", "Reco"),
+      selected = c("GPP", "NEE", "Reco")
+    ),
+    br(),
+    radioButtons(
+      "daily_co2", label = "Time step", 
+      choices  = c("Hourly", "Daily mean"), 
+      selected = "Hourly"
+    )
+  ),
+  
+  #Right column
+  checkboxGroupInput(
+    'chambers_co2', 'Chambers to plot', 
+    choices = as.character(seq(10, 90, 10)),
+    selected = as.character(seq(10, 90, 10))
+  )
+)
+```
+
+## Met
+
+```{r}
+#| panel: fill
+plotlyOutput('plot3', height = 500)
+```
+
+```{r}
+#| panel: sidebar
+
+h4("Plot Specifications")
+
+dateInput('today_met', 'Today', 
+          min = "2025-09-18", 
+          max = Sys.Date(),
+          value = Sys.Date())
+br()
+sliderInput('days_to_plot_met', 'Days of historical data to plot', 
+            0, 
+            round(as.numeric(difftime(Sys.Date(), "2025-09-19", units = "days"))),
+            value = 3)
+br()
+
+checkboxGroupInput(
+  'metrics_met', 'Meteorology to plot', 
+  choices = c("SlrFD_W_Avg", "AirT_C_Avg", "Rain_mm_Tot"),
+  selected = c("SlrFD_W_Avg", "AirT_C_Avg", "Rain_mm_Tot")
+)
+
+radioButtons(
+  "daily_met", label = "Time step", 
+  choices  = c("Hourly", "Daily mean"), 
+  selected = "Hourly"
+)
+```
+
+:::
+
+:::
 
 ```{r}
 #| context: server
@@ -159,5 +276,121 @@ output$plot1 <- renderPlotly({
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
   plotly::ggplotly(p1, tooltip=c("chamber", "R2", "TIMESTAMP"))
+})
+
+###################################
+### NEE
+
+slopes_part <- read_csv("https://raw.githubusercontent.com/abbylewis/Chapada_flux_data/refs/heads/master/processed_data/partitioned_co2.csv", show_col_types = F) %>%
+  filter(!is.na(location)) %>%
+  mutate(DateTime = lubridate::force_tz(DateTime, tzone = "Etc/GMT-3")) %>% 
+  rename(chamber = Fluxing_Chamber) %>%
+  mutate(type = case_when(chamber == 90~"Termites", 
+                          chamber %in% c(10,20,30) &
+                            location == "low" ~ "Relatively drier",
+                          chamber %in% c(10,20,30,40,50) &
+                            location == "high" ~ "Relatively drier",
+                          .default = "Relatively wetter"
+                          ),
+         chamber_long = paste0(chamber, " (", type, ")"),
+         chamber = as.factor(chamber),
+         GPP = ifelse(!is_day, 0, GPP)) 
+
+updateDateInput(inputId = "today_co2", 
+                  max = as.Date(max(slopes_part$DateTime)),
+                  value = as.Date(max(slopes_part$DateTime)))
+
+updateSliderInput(inputId = 'days_to_plot_co2',
+                  max = round(as.numeric(difftime(as.Date(max(slopes_part$DateTime)), 
+                                                  "2025-09-19", units = "days"))),
+                  value = 3)
+
+#Code for plots
+output$plot2 <- renderPlotly({
+  slopes_part_recent <- slopes_part %>%
+    filter(as.Date(DateTime) <= input$today_co2,
+           DateTime > (input$today_co2 - days(input$days_to_plot_co2))) %>%
+    select(c(NEE, GPP, Reco, DateTime, chamber, location, type)) %>%
+    pivot_longer(c(NEE, GPP, Reco), 
+                 names_to = "gas") %>%
+    mutate(value = ifelse(gas == "GPP", -value, value)) %>%
+    filter(!gas == "Flag")
+  
+  if(input$daily_co2 == "Daily mean"){
+    slopes_part_recent2 <- slopes_part_recent %>%
+      mutate(DateTime = as.Date(DateTime),
+             DateTime = as.POSIXct(DateTime)) %>%
+      group_by(DateTime, chamber, gas, location, type) %>%
+      summarize(value = mean(value, na.rm = T),
+                .groups = "drop")
+  } else {
+    slopes_part_recent2 <- slopes_part_recent
+  }
+  
+  p1 <- slopes_part_recent2 %>%
+    filter(gas %in% input$gases_part,
+           chamber %in% input$chambers_co2) %>%
+    ggplot(aes(x = DateTime, y = value, color = type,
+               group = chamber)) +
+    geom_hline(yintercept = 0, color = "grey70") +
+    geom_point(size = 0.5) +
+    geom_line() +
+    facet_grid(gas~location, scales = "free_y") +
+    scale_x_datetime(date_labels = "%b %d") +
+    theme_bw()+
+    scale_color_manual(values = c("#E4D966", "#779B3E", "#673A0A"),
+                       name = "")+
+    theme(axis.title.x = element_blank(),
+          axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
+  plotly::ggplotly(p1, tooltip=c("chamber", "R2", "DateTime"))
+})
+
+###################################
+### Met
+
+met <- read_csv("https://raw.githubusercontent.com/abbylewis/Chapada_flux_data/refs/heads/master/processed_data/met_2025_dashboard.csv", show_col_types = F) %>%
+  mutate(TIMESTAMP = lubridate::force_tz(TIMESTAMP, tzone = "Etc/GMT-3"))
+
+updateDateInput(inputId = "today_met", 
+                  max = as.Date(max(met$TIMESTAMP)),
+                  value = as.Date(max(met$TIMESTAMP)))
+
+updateSliderInput(inputId = 'days_to_plot_met',
+                  max = round(as.numeric(difftime(as.Date(max(met$TIMESTAMP)), 
+                                                  "2025-09-19", units = "days"))),
+                  value = 3)
+
+#Code for plots
+output$plot3 <- renderPlotly({
+  met_recent <- met %>%
+    filter(as.Date(TIMESTAMP) <= input$today_met,
+           TIMESTAMP > (input$today_met - days(input$days_to_plot_met))) %>%
+    select(c(SlrFD_W_Avg, AirT_C_Avg, Rain_mm_Tot, TIMESTAMP)) %>%
+    pivot_longer(c(SlrFD_W_Avg, AirT_C_Avg, Rain_mm_Tot), 
+                 names_to = "metric")
+  
+  if(input$daily_met == "Daily mean"){
+    met_recent2 <- met_recent %>%
+      mutate(TIMESTAMP = as.Date(TIMESTAMP),
+             TIMESTAMP = as.POSIXct(TIMESTAMP)) %>%
+      group_by(TIMESTAMP, metric) %>%
+      summarize(value = mean(value, na.rm = T),
+                .groups = "drop")
+  } else {
+    met_recent2 <- met_recent
+  }
+  
+  p1 <- met_recent2 %>%
+    filter(metric %in% input$metrics_met) %>%
+    ggplot(aes(x = TIMESTAMP, y = value)) +
+    geom_hline(yintercept = 0, color = "grey70") +
+    geom_point(size = 0.5) +
+    geom_line() +
+    facet_wrap(~metric, scales = "free_y", ncol = 1) +
+    scale_x_datetime(date_labels = "%b %d") +
+    theme_bw()+
+    theme(axis.title.x = element_blank(),
+          axis.text.x = element_text(angle = 30, vjust = 1.0, hjust = 1.0))
+  plotly::ggplotly(p1, tooltip=c("TIMESTAMP", "value"))
 })
 ```
