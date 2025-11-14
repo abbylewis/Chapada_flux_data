@@ -1,6 +1,7 @@
 load_file <- function(path_display, output_dir){
   url <- "https://content.dropboxapi.com/2/files/download"
   name <- sub("/Chapada_Loggernet_Data/current_data/", "", path_display)
+  name <- sub("/Chapada_Loggernet_Data/archived_data/", "", name)
   
   httr::POST(
     url = url,

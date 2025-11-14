@@ -5,10 +5,10 @@ account: aslewis
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15523982
-bundleId: 10980711
+bundleId: 11131999
 url: https://aslewis.shinyapps.io/chapada_dashboard/
 version: 1
-quarto_version: 1.5.57
+quarto_version: 1.7.32
 quarto_engines: knitr
 asMultiple: FALSE
 asStatic: FALSE

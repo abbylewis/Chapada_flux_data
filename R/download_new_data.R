@@ -16,9 +16,16 @@ library(tidyverse)
 download_new_data <- function(lgr_folder = here::here("Raw_data","dropbox_downloads")){
   #Identify all files
   message("Looking for new data files on dropbox")
-  relevant_files <- drop_dir(path = "Chapada_Loggernet_Data/current_data") %>%
+  current_files <- drop_dir(path = "Chapada_Loggernet_Data/current_data") %>%
     filter(grepl("FLUX_COMB", name)) %>%
     mutate(server_modified = as.POSIXct(server_modified, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"))
+  
+  archived_files <- drop_dir(path = "Chapada_Loggernet_Data/archived_data") %>%
+    filter(grepl("FLUX_COMB", name)) %>%
+    mutate(server_modified = as.POSIXct(server_modified, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"))
+  
+  relevant_files <- current_files %>%
+    bind_rows(archived_files)
   
   #Remove files that are already loaded and haven't been modified
   already_loaded <- list.files(lgr_folder)

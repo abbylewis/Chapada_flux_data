@@ -1,0 +1,335 @@
+---
+title: "QAQC by looking at raw data"
+author: "Abby Lewis"
+date: "2024-12-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+#Create function to assign groups for separate readings
+group_fun <- function(MIU_VALVE) {
+  group <- rep(1, length(MIU_VALVE))
+  for (i in 2:length(MIU_VALVE)) {
+    if(MIU_VALVE[i] == MIU_VALVE[i - 1]) {
+      group[i] <- group[i - 1]
+    } else {
+      group[i] <- group[i - 1] + 1
+    }
+  }
+  return(group)
+}
+```
+
+```{r}
+# Check nighttime CO2 fluxes compare across years
+library(tidyverse)
+l0 <- read_csv("processed_data/L0.csv") 
+l0 %>%
+  filter(year(date) %in% c(2024, 2025)) %>%
+  ggplot(aes(x = date, y = CH4_init)) +
+  geom_point(alpha = 0.1)+
+  facet_wrap(~MIU_VALVE)+
+  scale_x_date(date_breaks = "2 months", date_labels = "%b")
+
+l0 %>%
+  filter(year(date)==2025,
+         CH4_slope_ppm_per_day < 500) %>%
+  ggplot(aes(x = CH4_init, y = CH4_slope_ppm_per_day, color = date)) +
+  geom_point()+
+  facet_wrap(~MIU_VALVE)
+
+l0 %>%
+  filter(month(date) == 3) %>%
+  mutate(Format = ifelse(date > "2025-03-15", "NEW", "OLD")) %>%
+  ggplot(aes(x = hour(flux_start), y = CO2_slope_ppm_per_day)) +
+  geom_point()+
+  facet_wrap(~Format)
+
+l0 %>%
+  select(date, CO2_slope_ppm_per_day, CH4_slope_ppm_per_day) %>%
+  pivot_longer(cols = -date, names_to = "Gas", values_to = "Slope") %>%
+  filter(month(date) == 3) %>%
+  mutate(Format = ifelse(date > "2025-03-15", "NEW", "OLD"),
+         month = month(date)) %>%
+  ggplot(aes(x = Format, y = Slope)) +
+  geom_boxplot()+
+  ggh4x::facet_grid2(month~Gas, scales = "free", independent = "y")
+
+l0 %>%
+  filter(hour(flux_start) >= 0,
+         hour(flux_start) <= 4) %>%
+  group_by(date, MIU_VALVE) %>%
+  summarize(CO2_slope_ppm_per_day = mean(CO2_slope_ppm_per_day, na.rm = T)) %>%
+  ggplot(aes(x = date, y = CO2_slope_ppm_per_day)) +
+  geom_point(alpha = 0.2)+
+  ylim(-10000,10000)+
+  facet_wrap(~MIU_VALVE)
+```
+
+Load data
+
+```{r}
+### Load files ###
+files <- list.files(here::here("Raw_data","dropbox_downloads"), full.names = T)
+exclude <- c("INSERT_FILENAME_HERE.dat"
+             )
+files <- files[!grepl(paste0(exclude, collapse = "|"), files)]
+#For testing
+files <- files[grepl("2024", files)]
+files
+files <- files[grepl("202410", files)]
+
+message(paste0("Calculating fluxes for ", length(files), " files"))
+
+#Load data
+data_raw <- files %>%
+  map(read_csv, col_types = cols(.default = "c"), skip = 1)  %>%
+  bind_rows() %>%
+  filter(!TIMESTAMP == "TS") %>%
+  mutate(TIMESTAMP = as_datetime(TIMESTAMP, tz = "America/New_York")) %>%
+  filter(!is.na(TIMESTAMP),
+         year(TIMESTAMP)>=2021) %>%
+  distinct() 
+
+#Account for different formatting among files
+if("LGR_Time" %in% colnames(data_raw)){
+  data_small <- data_raw %>%
+    filter(is.na(LGR_Time) | !duplicated(LGR_Time) | 
+             !duplicated(CH4d_ppm)) %>% #I've spent some time looking into this and there are some duplicated LGR rows
+    select(TIMESTAMP, CH4d_ppm, CO2d_ppm, MIU_VALVE, GasT_C)
+} else {
+  data_small <- data_raw %>%
+    select(TIMESTAMP, CH4d_ppm, CO2d_ppm, MIU_VALVE, GasT_C)
+}
+rm(data_raw) #Save memory
+
+#Format data
+data_numeric <- data_small %>%
+  mutate(CH4d_ppm = as.numeric(CH4d_ppm),
+         CO2d_ppm = as.numeric(CO2d_ppm),
+         GasT_C = as.numeric(GasT_C),
+         MIU_VALVE = as.numeric(MIU_VALVE),
+         CH4d_ppm = ifelse(CH4d_ppm<=0, NA, CH4d_ppm),
+         CO2d_ppm = ifelse(CO2d_ppm<=0, NA, CO2d_ppm)) %>%
+  filter(!is.na(MIU_VALVE),
+         MIU_VALVE %in% 1:12) %>%
+  mutate(Flag = "No issues")
+```
+
+Optional: remove data based on the maintenance log
+
+```{r}
+#Remove data as specified in maintenance log
+googlesheets4::gs4_deauth() # No authentication needed
+today <- Sys.time()
+maint_log <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1-fcWU3TK936cR0kPvLTy6CUF_GTvHTwGbiAKDCIE05s/edit?gid=0#gid=0", col_types = "c") %>%
+  mutate(Start_time = as_datetime(Start_time, tz = "America/New_York"),
+         End_time = as_datetime(End_time, tz = "America/New_York"),
+         End_time = ifelse(is.na(End_time), today, End_time),
+         End_time = as_datetime(End_time, tz = "America/New_York"))
+for(i in 1:nrow(maint_log)){
+  data_numeric <- data_numeric %>%
+    mutate(Flag = ifelse(TIMESTAMP <= maint_log$End_time[i] & 
+                           TIMESTAMP >= maint_log$Start_time[i] &
+                           MIU_VALVE %in% eval(parse(text = maint_log$Chambers[i])),
+                         maint_log$Flag[i],
+                         Flag),
+           CH4d_ppm = ifelse(TIMESTAMP <= maint_log$End_time[i] & 
+                               TIMESTAMP >= maint_log$Start_time[i] &
+                               maint_log$Remove[i] == "y" &
+                               MIU_VALVE %in% eval(parse(text = maint_log$Chambers[i])),
+                             NA,
+                             CH4d_ppm),
+           CO2d_ppm = ifelse(TIMESTAMP <= maint_log$End_time[i] & 
+                               TIMESTAMP >= maint_log$Start_time[i] &
+                               maint_log$Remove[i] == "y" &
+                               MIU_VALVE %in% eval(parse(text = maint_log$Chambers[i])),
+                             NA,
+                             CO2d_ppm))
+}
+```
+
+Plot
+
+```{r}
+#Group flux intervals, prep for slopes
+grouped_data <- data_numeric %>%
+  mutate(date = as.Date(TIMESTAMP, tz = "America/New_York")) %>%
+  #Group flux intervals
+  arrange(TIMESTAMP) %>%
+  mutate(group = group_fun(MIU_VALVE)) %>%
+  group_by(group, MIU_VALVE)  %>%
+  #Record the amount of time from when chamber closed
+  mutate(start = min(TIMESTAMP),
+         end = max(TIMESTAMP),
+         change = as.numeric(difftime(TIMESTAMP, start, units = "days")),
+         change_s = as.numeric(difftime(TIMESTAMP, start, units = "secs")),
+         max_s = ifelse(sum(!is.na(CH4d_ppm) > 0),
+                        change_s[which.max(CH4d_ppm)],
+                        NA),
+         min_s = ifelse(sum(!is.na(CH4d_ppm) > 0),
+                        change_s[which.min(CH4d_ppm)],
+                        NA),)
+
+dates <- unique(grouped_data$date)
+for(date_i in dates){
+  grouped_data_i <- grouped_data %>%
+    filter(date == date_i)
+  p_i <- grouped_data_i %>%
+    ggplot(aes(x = change_s, y = CH4d_ppm, group = group)) +
+    geom_line()+
+    facet_wrap(~MIU_VALVE)+
+    ggtitle(as.Date(date_i))
+  print(p_i)
+}
+```
+
+Identify peaks
+
+```{r}
+buffer <- 60 #Buffer of time after peak (s)
+rolling_window = 15 #days
+default = 60
+range_thresh = 0.02
+peaks_raw <- grouped_data %>%
+  group_by(group, MIU_VALVE)  %>%
+  filter(max(change_s) < 1000, #After ~15 min there is probably a problem
+  ) %>%
+  group_by(MIU_VALVE, date, group, end, start) %>%
+  summarize(max_s = unique(max_s), .groups = "drop",
+            range = max(CH4d_ppm)-min(CH4d_ppm)) %>%
+  filter((difftime(end, start, units = "secs") - max_s) > 20,
+         ) %>%
+  mutate(max_s = ifelse(range < range_thresh, default, max_s)) %>%
+  group_by(MIU_VALVE, date) %>%
+  summarize(cutoff = density(max_s, bw = 10)$x[which.max(density(max_s, bw = 10)$y)],
+            cutoff = round(cutoff) + buffer,
+            .groups = "drop") 
+old_peaks <- read_csv(here::here("processed_data","peaks_raw.csv"), show_col_types = F)
+peaks_comb <- old_peaks %>%
+  rename(old = cutoff) %>%
+  full_join(peaks_raw) %>%
+  mutate(cutoff = ifelse(is.na(cutoff), old, cutoff)) %>%
+  select(-old)
+#write_csv(peaks_comb, here::here("processed_data","peaks_raw.csv"))
+
+peaks <- peaks_comb %>%
+  group_by(MIU_VALVE) %>%
+  arrange(date) %>%
+  mutate(sd = zoo::rollapply(cutoff, 
+                             width = rolling_window, 
+                             FUN = sd,
+                             na.rm = T,
+                             fill = "expand",
+                             partial = T,
+                             align = "center"),
+         mean = zoo::rollapply(cutoff, 
+                             width = rolling_window, 
+                             FUN = mean,
+                             na.rm = T,
+                             fill = "expand",
+                             partial = T,
+                             align = "center")) %>%
+  filter(!cutoff > (mean + 2*sd)) %>%
+  select(-mean, -sd) %>%
+  mutate(cutoff = zoo::rollapply(cutoff, 
+                                 width = rolling_window, 
+                                 FUN = max,
+                                 na.rm = T,
+                                 fill = "expand",
+                                 partial = T,
+                                 align = "center")) %>%
+  #Manually reset these because there are two peaks
+  mutate(cutoff = ifelse(date > as.Date("2024-09-25") &
+                           date < as.Date("2024-10-15"),
+                         300,
+                         cutoff))
+
+#Save flags for data that will be removed in the next step
+flags <- grouped_data %>%
+  ungroup() %>%
+  select(start, MIU_VALVE, Flag, date, group) %>%
+  distinct() %>%
+  group_by(MIU_VALVE, start, date, group) %>%
+  filter(n() == 1 | !Flag == "No issues")
+
+filtered_data <- grouped_data %>%
+  left_join(peaks, by = c("MIU_VALVE", "date")) %>%
+  group_by(group, MIU_VALVE)  %>%
+  mutate(n = sum(change_s >= cutoff)) %>%
+  #Remove earlier measurements
+  filter(change_s >= cutoff,
+         max(change_s) < 1000, #After ~15 min there is probably a problem
+         n < 200 #probably some issue if this many measurements are taken
+  ) 
+
+#Data flags
+data_flags <- filtered_data %>%
+  group_by(group, MIU_VALVE, date) %>%
+  summarize(Flag_CO2_slope = ifelse(sum(!is.na(CO2d_ppm)) > 5, "No issues", "Insufficient data"),
+            Flag_CH4_slope = ifelse(sum(!is.na(CH4d_ppm)) > 5, "No issues", "Insufficient data"),
+            cutoff_removed = unique(cutoff),
+            n_removed = unique(n),
+            .groups = "drop") 
+
+#Run lm
+slopes <- filtered_data %>%
+  pivot_longer(c(CH4d_ppm, CO2d_ppm), names_to = "gas", values_to = "conc") %>%
+  group_by(gas, group, MIU_VALVE, date) %>%
+  mutate(n = sum(!is.na(conc))) %>%
+  filter(!is.na(conc),
+         n > 5) %>%
+  summarize(model = list(lm(conc ~ change)),
+            slope_ppm_per_day = model[[1]]$coefficients[[2]],
+            Temp_init = first(GasT_C),
+            R2 = summary(model[[1]])$r.squared,
+            p = summary(model[[1]])$coefficients[,4][2],
+            rmse = sqrt(mean(model[[1]]$residuals^2)),
+            max = max(conc),
+            min = min(conc),
+            init = first(conc),
+            max_s = unique(max_s),
+            flux_start = min(TIMESTAMP),
+            flux_end = max(TIMESTAMP),
+            TIMESTAMP = unique(start),
+            n = sum(!is.na(conc)),
+            cutoff = unique(cutoff),
+            .groups = "drop") %>%
+  select(-model) %>%
+  mutate(gas = ifelse(gas == "CH4d_ppm", "CH4", "CO2")) %>%
+  pivot_wider(names_from = gas, 
+              values_from = c(slope_ppm_per_day, R2, p, rmse, init, max, min),
+              names_glue = "{gas}_{.value}") %>%
+  full_join(flags, by = c("TIMESTAMP" = "start", "MIU_VALVE", "date", "group")) %>%
+  full_join(data_flags, by = c("group", "MIU_VALVE", "date")) %>%
+  mutate(cutoff = ifelse(is.na(cutoff), cutoff_removed, cutoff),
+         n = ifelse(is.na(n), n_removed, n)) %>%
+  select(-cutoff_removed, -n_removed)
+
+if(plot){
+  for(year_i in unique(year(slopes$TIMESTAMP))){
+    p <- slopes %>%
+      filter(max_s <=1000,
+             month(date) %in% c(1:12)) %>%
+      mutate(MIU_VALVE = factor(MIU_VALVE, 
+                                levels = c(1,4,7,10,
+                                           3,6,9,12,
+                                           2,5,8,11))) %>%
+      filter(year(TIMESTAMP) == year_i) %>%
+      ggplot(aes(x = TIMESTAMP, y = max_s)) +
+      geom_point(alpha = 0.02)+
+      geom_line(aes(y = cutoff, x = as.POSIXct(date)), color = "red")+
+      facet_wrap(~MIU_VALVE)+
+      ggtitle(year_i)+
+      xlab("Date")+
+      ylab("Time to peak (s)")+
+      theme_bw()
+    #jpeg(here::here("figures", paste0("TimeToPeak_", year_i, ".jpeg")), width = 6, height = 5, units = "in", res = 300)
+    print(p)
+    #dev.off()
+  }
+}
+```
+

@@ -150,11 +150,9 @@ output$plot1 <- renderPlotly({
                group = chamber, label = R2)) +
     geom_hline(yintercept = 0, color = "grey70") +
     geom_point(size = 0.5) +
-    geom_vline(xintercept = as.numeric(as_datetime("2025-05-28 16:13:00", 
-                                                   tz = "America/New_York")))+
     geom_line() +
     facet_grid(gas~location, scales = "free_y") +
-    scale_x_datetime(date_breaks = "2 day", date_labels = "%b %d") +
+    scale_x_datetime(date_labels = "%b %d") +
     theme_bw()+
     scale_color_manual(values = c("#E4D966", "#779B3E", "#673A0A"),
                        name = "")+
