@@ -6,7 +6,7 @@ library(tidyverse)
 
 download_met <- function(met_folder = here::here("Raw_data", "met")){
   #Identify all files
-  files <- drop_dir(path = "Chapada_Loggernet_Data/current_data")
+  files <- drop_dir(path = "Chapada_Loggernet_Data/archived_data")
   relevant_files <- files %>%
     filter(grepl("ClimaVue50_15min", name))
   current <- drop_dir(path = "Chapada_Loggernet_Data/current_data") %>%
