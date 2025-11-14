@@ -154,8 +154,10 @@ merged[day_mask, GPP := Reco - NEE]
 merged[day_mask & GPP < 0, GPP := 0]
 
 #Parse chamber names
-merged$Fluxing_Chamber <- str_extract(merged$chamber, "[0-9]+")
-merged$location <- str_extract(merged$chamber, "[a-z]+")
+merged <- merged %>%
+  mutate(Fluxing_Chamber = str_extract(merged$chamber, "[0-9]+"),
+         location = str_extract(merged$chamber, "[a-z]+")) %>%
+  select(-chamber)
 
 write_csv(merged, "processed_data/partitioned_co2.csv")
 
