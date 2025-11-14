@@ -517,7 +517,7 @@ updateDateInput(inputId = "today",
 
 updateSliderInput(inputId = 'days_to_plot',
                   max = round(as.numeric(difftime(as.Date(max(slopes_l0$TIMESTAMP)), "2025-09-19", units = "days"))),
-                  value = 2)
+                  value = 3)
 
 #Code for plots
 output$plot1 <- renderPlotly({

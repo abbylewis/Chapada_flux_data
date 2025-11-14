@@ -6,7 +6,7 @@ library(tidyverse)
 
 download_redox <- function(met_folder = here::here("Raw_data", "redox")){
   #Identify all files
-  files <- drop_dir(path = "Chapada_Loggernet_Data/current_data")
+  files <- drop_dir(path = "Chapada_Loggernet_Data/archived_data")
   relevant_files <- files %>%
     filter(grepl("Redox15", name))
   current <- drop_dir(path = "Chapada_Loggernet_Data/current_data") %>%
@@ -19,7 +19,9 @@ download_redox <- function(met_folder = here::here("Raw_data", "redox")){
            !grepl("backup", name))
   
   #Load current data
-  new <- current$path_display %>%
+  new <- current %>%
+    filter(!grepl("backup", name)) %>%
+    pull(path_display) %>%
     map(load_file, output_dir = met_folder)
   
   if(nrow(relevant_files) == 0){
@@ -30,7 +32,7 @@ download_redox <- function(met_folder = here::here("Raw_data", "redox")){
       map(load_file, output_dir = met_folder)
   }
   
-  message("Processing and saving all historical met data")
+  message("Processing and saving all historical redox data")
   
   data <- list.files(met_folder, full.names = T) %>%
     map(read.csv, skip = 1) %>%
@@ -40,6 +42,7 @@ download_redox <- function(met_folder = here::here("Raw_data", "redox")){
     filter(!is.na(TIMESTAMP)) %>%
     distinct()
   
+  #Not sure what column names mean yet
   write_csv(data %>%
               filter(TIMESTAMP >= as.Date("2025-03-18")) %>%
               select(all_of(c("TIMESTAMP", "SlrFD_W_Avg", "AirT_C_Avg", "Rain_mm_Tot"))), 

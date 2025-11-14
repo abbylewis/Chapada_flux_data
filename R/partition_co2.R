@@ -8,7 +8,7 @@ library(data.table)
 source("R/download_met.R")
 
 # Load slopes
-df <- read_csv("https://raw.githubusercontent.com/abbylewis/Chapada_flux_data/refs/heads/master/processed_data/L0.csv", show_col_types = F)
+df <- read_csv("processed_data/L0.csv", show_col_types = F)
 # Update met
 download_met()
 # Load met
