@@ -30,10 +30,15 @@ jobs:
           Rscript packages.R
           Rscript ./R/generate_L1_fluxes.R
 
-      - name: Calculate and QAQC fluxes
+      - name: Partition CO2
         run: |
           Rscript packages.R
           Rscript ./R/partition_co2.R
+          
+      - name: Update redox
+        run: |
+          Rscript packages.R
+          Rscript ./R/download_redox.R
         
       - name: Commit and push
         run: |
