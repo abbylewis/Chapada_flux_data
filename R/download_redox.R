@@ -2,7 +2,7 @@
 source("./R/drop_dir.R")
 source("./R/get_dropbox_token.R")
 source("./R/load_file.R")
-source("./R/load_dataR")
+source("./R/load_data.R")
 library(tidyverse)
 
 download_redox <- function(redox_folder = here::here("Raw_data", "redox")){
@@ -35,7 +35,7 @@ download_redox <- function(redox_folder = here::here("Raw_data", "redox")){
   
   message("Processing and saving all historical redox data")
   
-  design <- read_csv("https://raw.githubusercontent.com/Smithsonian/Chapada_Stem/refs/heads/main/design_tables/design.csv?token=GHSAT0AAAAAADANABGX4IW7XD5WWCPJLNBY2KGB7SA",
+  design <- read_csv("processed_data/design.csv",
                      show_col_types = F) %>%
     mutate(location = ifelse(grepl("H", link), "high", "low"))
   
@@ -57,7 +57,6 @@ download_redox <- function(redox_folder = here::here("Raw_data", "redox")){
            ref = str_extract(research_name, "refa|refb")) %>%
     select(-research_name)
   
-  #Not sure what column names mean yet
   write_csv(data %>%
               filter(TIMESTAMP >= as.Date("2025-03-18")),
             here::here("processed_data", "redox_2025_dashboard.csv"))

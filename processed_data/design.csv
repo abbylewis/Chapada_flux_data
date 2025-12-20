@@ -1,0 +1,338 @@
+research_name,logger_name,packbusID,Table,link,loggernet_variable,cr1000_name,definition,var_type,resolution_minutes,variable_start_date_local,variable_end_date_local
+logger,Chapada_High,801,Chapada_High_ChamberBME280,high,Logger,logger,logger name,zone,1,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_High,801,Chapada_High_ChamberBME280,high,TIMESTAMP,timestamp,timestamp,zone,1,2025-09-01T00:00:00Z,NA
+record,Chapada_High,801,Chapada_High_ChamberBME280,high,RECORD,record,record,zone,1,2025-09-01T00:00:00Z,NA
+battery_voltage_min,Chapada_High,801,Chapada_High_ChamberBME280,high,BattV_Min,battv_min,minimum voltage from battery over 15 minute time period,zone,1,2025-09-01T00:00:00Z,NA
+panel_temperature,Chapada_High,801,Chapada_High_ChamberBME280,high,PTemp_C,ptemp_c,Default CR1000 Datalogger Wiring Panel Temperature measurement,zone,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H1,BP(1),bp1,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H2,BP(2),bp2,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H3,BP(3),bp3,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H4,BP(4),bp4,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H5,BP(5),bp5,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H6,BP(6),bp6,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H7,BP(7),bp7,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H8,BP(8),bp8,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_High,801,Chapada_High_ChamberBME280,H9,BP(9),bp9,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H1,RH(1),rh1,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H2,RH(2),rh2,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H3,RH(3),rh3,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H4,RH(4),rh4,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H5,RH(5),rh5,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H6,RH(6),rh6,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H7,RH(7),rh7,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H8,RH(8),rh8,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_High,801,Chapada_High_ChamberBME280,H9,RH(9),rh9,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H1,Temp(1),temp1,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H2,Temp(2),temp2,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H3,Temp(3),temp3,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H4,Temp(4),temp4,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H5,Temp(5),temp5,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H6,Temp(6),temp6,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H7,Temp(7),temp7,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H8,Temp(8),temp8,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_High,801,Chapada_High_ChamberBME280,H9,Temp(9),temp9,temperature inside the chamber,chamber,1,2025-09-01T00:00:00Z,NA
+logger,Chapada_High,801,Chapada_High_CheckTable,high,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_High,801,Chapada_High_CheckTable,high,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_High,801,Chapada_High_CheckTable,high,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+battery_voltage,Chapada_High,801,Chapada_High_CheckTable,high,BattV,battv,Default CR1000 Datalogger Battery Voltage measurement,zone,15,2025-09-01T00:00:00Z,NA
+solar_voltage,Chapada_High,801,Chapada_High_CheckTable,high,SolarV,solarv,incoming solar voltage,zone,15,2025-09-01T00:00:00Z,NA
+battery_check,Chapada_High,801,Chapada_High_CheckTable,high,Batt_CHECK,batt_check,OKAY if BattV is above 11.8 or LOW otherwise,zone,15,2025-09-01T00:00:00Z,NA
+solar_check,Chapada_High,801,Chapada_High_CheckTable,high,Solar_CHECK,solar_check,OKAY if SolarV is above 24 or LOW otherwise,zone,15,2025-09-01T00:00:00Z,NA
+flag_1,Chapada_High,801,Chapada_High_CheckTable,high,Flag(1),flag1,system start up and reset,zone,15,2025-09-01T00:00:00Z,NA
+flag_2,Chapada_High,801,Chapada_High_CheckTable,high,Flag(2),flag2,Make all Arduino channels 0,zone,15,2025-09-01T00:00:00Z,NA
+flag_3,Chapada_High,801,Chapada_High_CheckTable,high,Flag(3),flag3,xbee operation for BME 280(-1 for normal function),zone,15,2025-09-01T00:00:00Z,NA
+flag_4,Chapada_High,801,Chapada_High_CheckTable,high,Flag(4),flag4,chamber normal operation control with arduino send:-1 for normal control,zone,15,2025-09-01T00:00:00Z,NA
+flag_5,Chapada_High,801,Chapada_High_CheckTable,high,Flag(5),flag5,time reset of Xbee logger power,zone,15,2025-09-01T00:00:00Z,NA
+flag_6,Chapada_High,801,Chapada_High_CheckTable,high,Flag(6),flag6,diagnostic all lids open for 60,zone,15,2025-09-01T00:00:00Z,NA
+flag_7,Chapada_High,801,Chapada_High_CheckTable,high,Flag(7),flag7,diagnostic all lids closed for 60,zone,15,2025-09-01T00:00:00Z,NA
+flag_8,Chapada_High,801,Chapada_High_CheckTable,high,Flag(8),flag8,diagnostic all valves open,zone,15,2025-09-01T00:00:00Z,NA
+flag_9,Chapada_High,801,Chapada_High_CheckTable,high,Flag(9),flag9,Licor 7810 ON' needs to be -1 for operation,zone,15,2025-09-01T00:00:00Z,NA
+flag_10,Chapada_High,801,Chapada_High_CheckTable,high,Flag(10),flag10,LICOR 7280 ON' needs to be -1 for operation,zone,15,2025-09-01T00:00:00Z,NA
+flag_11,Chapada_High,801,Chapada_High_CheckTable,high,Flag(11),flag11,chamber 1-5 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_12,Chapada_High,801,Chapada_High_CheckTable,high,Flag(12),flag12,chambers 6-12 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_13,Chapada_High,801,Chapada_High_CheckTable,high,Flag(13),flag13,Chamber open custom,zone,15,2025-09-01T00:00:00Z,NA
+flag_14,Chapada_High,801,Chapada_High_CheckTable,high,Flag(14),flag14,chmabers 16-24 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_15,Chapada_High,801,Chapada_High_CheckTable,high,Flag(15),flag15,resets system to no flags except #10 vent,zone,15,2025-09-01T00:00:00Z,NA
+flag_16,Chapada_High,801,Chapada_High_CheckTable,high,Flag(16),flag16,Climavue for 801 unit,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_High,801,Chapada_High_CheckTable,high,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+packbus_id,Chapada_High,801,Chapada_High_CheckTable,high,PB,pb,packbus number of logger,zone,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_High,801,Chapada_High_Redox15,high,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_High,801,Chapada_High_Redox15,high,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_High,801,Chapada_High_Redox15,high,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_High,801,Chapada_High_Redox15,high,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+battery_voltage,Chapada_High,801,Chapada_High_Redox15,high,BattV,battv,Voltage input from battery,zone,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H1,RedoxRa(1),redoxra1,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H1,RedoxRa(2),redoxra2,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H2,RedoxRa(3),redoxra3,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H2,RedoxRa(4),redoxra4,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H3,RedoxRa(5),redoxra5,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H3,RedoxRa(6),redoxra6,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H4,RedoxRa(7),redoxra7,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H4,RedoxRa(8),redoxra8,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H5,RedoxRa(9),redoxra9,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H5,RedoxRa(10),redoxra10,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H6,RedoxRa(11),redoxra11,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H6,RedoxRa(12),redoxra12,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H7,RedoxRa(13),redoxra13,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H7,RedoxRa(14),redoxra14,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H8,RedoxRa(15),redoxra15,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H8,RedoxRa(16),redoxra16,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_High,801,Chapada_High_Redox15,H9,RedoxRa(17),redoxra17,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_High,801,Chapada_High_Redox15,H9,RedoxRa(18),redoxra18,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H1,RedoxRb(1),redoxrb1,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H1,RedoxRb(2),redoxrb2,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H2,RedoxRb(3),redoxrb3,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H2,RedoxRb(4),redoxrb4,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H3,RedoxRb(5),redoxrb5,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H3,RedoxRb(6),redoxrb6,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H4,RedoxRb(7),redoxrb7,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H4,RedoxRb(8),redoxrb8,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H5,RedoxRb(9),redoxrb9,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H5,RedoxRb(10),redoxrb10,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H6,RedoxRb(11),redoxrb11,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H6,RedoxRb(12),redoxrb12,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H7,RedoxRb(13),redoxrb13,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H7,RedoxRb(14),redoxrb14,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H8,RedoxRb(15),redoxrb15,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H8,RedoxRb(16),redoxrb16,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_High,801,Chapada_High_Redox15,H9,RedoxRb(17),redoxrb17,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_High,801,Chapada_High_Redox15,H9,RedoxRb(18),redoxrb18,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_High,801,Chapada_High_Teros12Table,high,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_High,801,Chapada_High_Teros12Table,high,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_High,801,Chapada_High_Teros12Table,high,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+packbus_id,Chapada_High,801,Chapada_High_Teros12Table,high,PB,pb,logger packbus number,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_High,801,Chapada_High_Teros12Table,high,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+battv_avg,Chapada_High,801,Chapada_High_Teros12Table,high,BattV_Avg,battv_avg,Voltage input from battery,zone,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H1,"Teros12(1,1)",teros12_1_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H1,"Teros12(1,2)",teros12_1_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H1,"Teros12(1,3)",teros12_1_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H2,"Teros12(2,1)",teros12_2_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H2,"Teros12(2,2)",teros12_2_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H2,"Teros12(2,3)",teros12_2_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H3,"Teros12(3,1)",teros12_3_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H3,"Teros12(3,2)",teros12_3_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H3,"Teros12(3,3)",teros12_3_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H4,"Teros12(4,1)",teros12_4_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H4,"Teros12(4,2)",teros12_4_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H4,"Teros12(4,3)",teros12_4_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H5,"Teros12(5,1)",teros12_5_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H5,"Teros12(5,2)",teros12_5_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H5,"Teros12(5,3)",teros12_5_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H6,"Teros12(6,1)",teros12_6_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H6,"Teros12(6,2)",teros12_6_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H6,"Teros12(6,3)",teros12_6_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H7,"Teros12(7,1)",teros12_7_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H7,"Teros12(7,2)",teros12_7_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H7,"Teros12(7,3)",teros12_7_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H8,"Teros12(8,1)",teros12_8_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H8,"Teros12(8,2)",teros12_8_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H8,"Teros12(8,3)",teros12_8_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_High,801,Chapada_High_Teros12Table,H9,"Teros12(9,1)",teros12_9_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_High,801,Chapada_High_Teros12Table,H9,"Teros12(9,2)",teros12_9_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_High,801,Chapada_High_Teros12Table,H9,"Teros12(9,3)",teros12_9_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_ChamberBME280,low,Logger,logger,logger name,zone,1,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_ChamberBME280,low,TIMESTAMP,timestamp,timestamp,zone,1,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_ChamberBME280,low,RECORD,record,record,zone,1,2025-09-01T00:00:00Z,NA
+battery_voltage_min,Chapada_Low,802,Chapada_Low_ChamberBME280,low,BattV_Min,battv_min,minimum voltage from battery over 15 minute time period,zone,1,2025-09-01T00:00:00Z,NA
+panel_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,low,PTemp_C,ptemp_c,Default CR1000 Datalogger Wiring Panel Temperature measurement,zone,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L1,BP(1),bp1,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L2,BP(2),bp2,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L3,BP(3),bp3,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L4,BP(4),bp4,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L5,BP(5),bp5,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L6,BP(6),bp6,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L7,BP(7),bp7,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L8,BP(8),bp8,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+barometric_pressure,Chapada_Low,802,Chapada_Low_ChamberBME280,L9,BP(9),bp9,barometric pressure inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L1,RH(1),rh1,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L2,RH(2),rh2,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L3,RH(3),rh3,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L4,RH(4),rh4,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L5,RH(5),rh5,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L6,RH(6),rh6,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L7,RH(7),rh7,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L8,RH(8),rh8,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+relative_humidity,Chapada_Low,802,Chapada_Low_ChamberBME280,L9,RH(9),rh9,relative humidity inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L1,Temp(1),temp1,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L2,Temp(2),temp2,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L3,Temp(3),temp3,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L4,Temp(4),temp4,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L5,Temp(5),temp5,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L6,Temp(6),temp6,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L7,Temp(7),temp7,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L8,Temp(8),temp8,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+air_temperature,Chapada_Low,802,Chapada_Low_ChamberBME280,L9,Temp(9),temp9,temperature inside chamber,chamber,1,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_CheckTable,low,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_CheckTable,low,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_CheckTable,low,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+battery_voltage,Chapada_Low,802,Chapada_Low_CheckTable,low,BattV,battv,Default CR1000 Datalogger Battery Voltage measurement,zone,15,2025-09-01T00:00:00Z,NA
+solar_voltage,Chapada_Low,802,Chapada_Low_CheckTable,low,SolarV,solarv,incoming solar voltage,zone,15,2025-09-01T00:00:00Z,NA
+battery_check,Chapada_Low,802,Chapada_Low_CheckTable,low,Batt_CHECK,batt_check,OKAY if BattV is above 11.8 or LOW otherwise,zone,15,2025-09-01T00:00:00Z,NA
+solar_check,Chapada_Low,802,Chapada_Low_CheckTable,low,Solar_CHECK,solar_check,OKAY if SolarV is above 24 or LOW otherwise,zone,15,2025-09-01T00:00:00Z,NA
+flag_1,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(1),flag1,system start up and reset,zone,15,2025-09-01T00:00:00Z,NA
+flag_2,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(2),flag2,Make all Arduino channels 0,zone,15,2025-09-01T00:00:00Z,NA
+flag_3,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(3),flag3,xbee operation for BME 280(-1 for normal function),zone,15,2025-09-01T00:00:00Z,NA
+flag_4,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(4),flag4,chamber normal operation control with arduino send:-1 for normal control,zone,15,2025-09-01T00:00:00Z,NA
+flag_5,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(5),flag5,time reset of Xbee logger power,zone,15,2025-09-01T00:00:00Z,NA
+flag_6,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(6),flag6,diagnostic all lids open for 60,zone,15,2025-09-01T00:00:00Z,NA
+flag_7,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(7),flag7,diagnostic all lids closed for 60,zone,15,2025-09-01T00:00:00Z,NA
+flag_8,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(8),flag8,diagnostic all valves open,zone,15,2025-09-01T00:00:00Z,NA
+flag_9,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(9),flag9,Licor 7810 ON' needs to be -1 for operation,zone,15,2025-09-01T00:00:00Z,NA
+flag_10,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(10),flag10,LICOR 7280 ON' needs to be -1 for operation,zone,15,2025-09-01T00:00:00Z,NA
+flag_11,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(11),flag11,chamber 1-5 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_12,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(12),flag12,chambers 6-12 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_13,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(13),flag13,Chamber open custom,zone,15,2025-09-01T00:00:00Z,NA
+flag_14,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(14),flag14,chmabers 16-24 closed,zone,15,2025-09-01T00:00:00Z,NA
+flag_15,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(15),flag15,resets system to no flags except #10 vent,zone,15,2025-09-01T00:00:00Z,NA
+flag_16,Chapada_Low,802,Chapada_Low_CheckTable,low,Flag(16),flag16,Climavue for 801 unit,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_Low,802,Chapada_Low_CheckTable,low,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+packbus_id,Chapada_Low,802,Chapada_Low_CheckTable,low,PB,pb,packbus number of logger,zone,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Logger,logger,logger name,experiment,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,TIMESTAMP,timestamp,time of measurement,experiment,15,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,RECORD,record,record,experiment,15,2025-09-01T00:00:00Z,NA
+solar_fd_avg_watts,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,SlrFD_W_Avg,slrfd_w_avg,solar radiation,experiment,15,2025-09-01T00:00:00Z,NA
+solar_tf_total_mj,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,SlrTF_MJ_Tot,slrtf_mj_tot,solar radiation,experiment,15,2025-09-01T00:00:00Z,NA
+rain_accumulation_total,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Rain_mm_Tot,rain_mm_tot,rain accumulation,experiment,15,2025-09-01T00:00:00Z,NA
+wind_speed,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,WS_ms_S_WVT,ws_ms_s_wvt,wind speed,experiment,15,2025-09-01T00:00:00Z,NA
+wind_direction_d1,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,WindDir_D1_WVT,winddir_d1_wvt,wind direction,experiment,15,2025-09-01T00:00:00Z,NA
+wind_direction_sd1,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,WindDir_SD1_WVT,winddir_sd1_wvt,secondary wind direction,experiment,15,2025-09-01T00:00:00Z,NA
+max_wind_speed_max,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,MaxWS_ms_Max,maxws_ms_max,maximum wind speed,experiment,15,2025-09-01T00:00:00Z,NA
+max_wind_speed_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,MaxWS_ms_TMx,maxws_ms_tmx,time of maximum wind speed,experiment,15,2025-09-01T00:00:00Z,NA
+invalid_wind_total,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Invalid_Wind_Tot,invalid_wind_tot,total number of invalid wind speed measurements.,experiment,15,2025-09-01T00:00:00Z,NA
+air_temperature_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,AirT_C_Avg,airt_c_avg,average air temperature over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+air_temperature_max,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,AirT_C_Max,airt_c_max,max air temperature over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+air_temperature_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,AirT_C_TMx,airt_c_tmx,time of maximum air temperature,experiment,15,2025-09-01T00:00:00Z,NA
+air_temperature_min,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,AirT_C_Min,airt_c_min,minimum air temperature over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+air_temperature_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,AirT_C_TMn,airt_c_tmn,time of minimum air temperature,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VP_mbar_Avg,vp_mbar_avg,Vapor Pressure,experiment,15,2025-09-01T00:00:00Z,NA
+barometric_pressure_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,BP_mbar,bp_mbar,average barometric pressure over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+barometric_pressure_max,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,BP_mbar_Max,bp_mbar_max,maximum barometric pressure over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+barometric_pressure_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,BP_mbar_TMx,bp_mbar_tmx,time of maximum barometric pressure,experiment,15,2025-09-01T00:00:00Z,NA
+barometric_pressure_min,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,BP_mbar_Min,bp_mbar_min,minimum barometric pressure over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+barometric_pressure_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,BP_mbar_TMn,bp_mbar_tmn,time of  minumum barometric pressure,experiment,15,2025-09-01T00:00:00Z,NA
+relative_humidity_decimal,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,RH_site,rh_site,relative humidity,experiment,15,2025-09-01T00:00:00Z,NA
+relative_humidity_temperature,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,RHT_C_Avg,rht_c_avg,temperature used for relative humidity data -- double check,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VPD,vpd,vapor pressure deficit,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_max,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VPD_Max,vpd_max,maximum vapor pressure deficit over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VPD_TMx,vpd_tmx,time pf vapor pressure deficit max,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_min,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VPD_Min,vpd_min,minimum vapor pressure deficit over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,VPD_TMn,vpd_tmn,time of vapor pressure deficit minimum,experiment,15,2025-09-01T00:00:00Z,NA
+NS_tilt,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,TiltNS_deg_Avg,tiltns_deg_avg,tilt of the sensor on the NS axis,experiment,15,2025-09-01T00:00:00Z,NA
+WE_tilt,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,TiltWE_deg_Avg,tiltwe_deg_avg,tilt of the sensor on the WE axis,experiment,15,2025-09-01T00:00:00Z,NA
+lightning_strikes_total,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Strikes_Tot,strikes_tot,number of lightning strikes,experiment,15,2025-09-01T00:00:00Z,NA
+dist_km_min,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Dist_km_Min,dist_km_min,minimum distance of lightning over the time period,experiment,15,2025-09-01T00:00:00Z,NA
+dist_km_tmin,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,Dist_km_TMn,dist_km_tmn,time of minimum distance of lightning,experiment,15,2025-09-01T00:00:00Z,NA
+metadata,Chapada_Low,802,Chapada_Low_ClimaVue50_15min,experiment,CVMeta,cvmeta,metadata from the ClimaVue,experiment,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,Logger,logger,logger name,experiment,1440,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TIMESTAMP,timestamp,timestamp,experiment,1440,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,RECORD,record,record,experiment,1440,2025-09-01T00:00:00Z,NA
+battery_voltage_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,BattV_Min,battv_min,minimum battery voltage recorded over the time period,experiment,1440,2025-09-01T00:00:00Z,NA
+rain_accumulation_total,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,Rain_mm_Tot,rain_mm_tot,rain accumulation,experiment,1440,2025-09-01T00:00:00Z,NA
+solar_fd_avg_watts,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,SlrFD_W_Avg,slrfd_w_avg,solar radiation,experiment,1440,2025-09-01T00:00:00Z,NA
+solar_tf_total_mj,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,SlrTF_MJ_Tot,slrtf_mj_tot,solar radiation,experiment,1440,2025-09-01T00:00:00Z,NA
+wind_speed_wvc1,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,WS_ms_WVc(1),ws_ms_wvc_1,wind speed one,experiment,1440,2025-09-01T00:00:00Z,NA
+wind_speed_wvc2,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,WS_ms_WVc(2),ws_ms_wvc_2,wind speed two,experiment,1440,2025-09-01T00:00:00Z,NA
+wind speed_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,WS_ms_S_WVT,ws_ms_s_wvt,wind speed calculated from the scalar mean of the wind vector,experiment,1440,2025-09-01T00:00:00Z,NA
+wind_speed_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,MaxWS_ms_Max,maxws_ms_max,maximum wind speed over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+max_wind_speed_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,MaxWS_ms_TMx,maxws_ms_tmx,time of maximum wind speed,experiment,1440,2025-09-01T00:00:00Z,NA
+air_temperature_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,AirT_C_Avg,airt_c_avg,average air temperature over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+air_temperature_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,AirT_C_Max,airt_c_max,maximum air temperature over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+air_temperature_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,AirT_C_TMx,airt_c_tmx,time of maximum air temperature,experiment,1440,2025-09-01T00:00:00Z,NA
+air_temperature_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,AirT_C_Min,airt_c_min,minium air temperature over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+air_temperature_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,AirT_C_TMn,airt_c_tmn,time of minimum air temperature,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_mbar_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VP_mbar_Avg,vp_mbar_avg,average vapor pressure over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_avg,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VPD_Avg,vpd_avg,average vapr pressure deficit over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VPD_Max,vpd_max,maximum vapor pressure deficit over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VPD_TMx,vpd_tmx,time of maximum vapor pressure deficit,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_deficit_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VPD_Min,vpd_min,minimum vapor pressure deficit over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+vapor_pressure_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,VPD_TMn,vpd_tmn,time of minimum vapor pressure deficit,experiment,1440,2025-09-01T00:00:00Z,NA
+barometric_pressure_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,BP_mbar_Max,bp_mbar_max,maximum barometric pressure over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+barometric_pressure_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,BP_mbar_TMx,bp_mbar_tmx,time of maximum barometric pressure,experiment,1440,2025-09-01T00:00:00Z,NA
+barometric_pressure_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,BP_mbar_Min,bp_mbar_min,minimum barometric pressure over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+barometric_pressure_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,BP_mbar_TMn,bp_mbar_tmn,time of minimum barometric pressure,experiment,1440,2025-09-01T00:00:00Z,NA
+relative_humidity_site_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,RH_site_Max,rh_site_max,maximum relative humidity,experiment,1440,2025-09-01T00:00:00Z,NA
+relative_humidity_site_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,RH_site_Min,rh_site_min,minumim relative humidity,experiment,1440,2025-09-01T00:00:00Z,NA
+relative_humidity_c_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,RHT_C_Max,rht_c_max,temperature at maximum humidity,experiment,1440,2025-09-01T00:00:00Z,NA
+relative_humidity_c_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,RHT_C_Min,rht_c_min,temperature at minimum humidity,experiment,1440,2025-09-01T00:00:00Z,NA
+ns_tilt_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltNS_deg_Max,tiltns_deg_max,maximum tilt of the sensor on the NS axis over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+ns_tilt_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltNS_deg_TMx,tiltns_deg_tmx,time of the maximum tilt of the sensor on the NS axis,experiment,1440,2025-09-01T00:00:00Z,NA
+ns_tilt_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltNS_deg_Min,tiltns_deg_min,minimum tilt of the sensor on the NS axis over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+ns_tilt_tmn,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltNS_deg_TMn,tiltns_deg_tmn,time of the minimum tilt of the sensor on the NS axis,experiment,1440,2025-09-01T00:00:00Z,NA
+we_tilt_max,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltWE_deg_Max,tiltwe_deg_max,maximum tilt of the sensor on the WE axis over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+we_tilt_tmx,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltWE_deg_TMx,tiltwe_deg_tmx,time of the maximum tilt of the sensor on the WE axis,experiment,1440,2025-09-01T00:00:00Z,NA
+we_tilt_min,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,TiltWE_deg_Min,tiltwe_deg_min,minimum tilt of the sensor on the WE axis over 24 hours,experiment,1440,2025-09-01T00:00:00Z,NA
+cv_meta,Chapada_Low,802,Chapada_Low_ClimaVue50_24hr,experiment,CVMeta,cvmeta,metadata from the ClimaVue,experiment,1440,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_Redox15,low,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_Redox15,low,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_Redox15,low,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_Low,802,Chapada_Low_Redox15,low,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+battery_voltage,Chapada_Low,802,Chapada_Low_Redox15,low,BattV,battv,Voltage input from battery,zone,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L1,RedoxRa(1),redoxra1,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L1,RedoxRa(2),redoxra2,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L2,RedoxRa(3),redoxra3,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L2,RedoxRa(4),redoxra4,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L3,RedoxRa(5),redoxra5,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L3,RedoxRa(6),redoxra6,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L4,RedoxRa(7),redoxra7,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L4,RedoxRa(8),redoxra8,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L5,RedoxRa(9),redoxra9,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L5,RedoxRa(10),redoxra10,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L6,RedoxRa(11),redoxra11,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L6,RedoxRa(12),redoxra12,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L7,RedoxRa(13),redoxra13,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L7,RedoxRa(14),redoxra14,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L8,RedoxRa(15),redoxra15,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L8,RedoxRa(16),redoxra16,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L9,RedoxRa(17),redoxra17,"Redox at 5cm, calculated using reference probe a",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refa,Chapada_Low,802,Chapada_Low_Redox15,L9,RedoxRa(18),redoxra18,"Redox at 15 cm, calculated using reference probe A",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L1,RedoxRb(1),redoxrb1,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L1,RedoxRb(2),redoxrb2,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L2,RedoxRb(3),redoxrb3,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L2,RedoxRb(4),redoxrb4,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L3,RedoxRb(5),redoxrb5,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L3,RedoxRb(6),redoxrb6,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L4,RedoxRb(7),redoxrb7,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L4,RedoxRb(8),redoxrb8,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L5,RedoxRb(9),redoxrb9,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L5,RedoxRb(10),redoxrb10,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L6,RedoxRb(11),redoxrb11,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L6,RedoxRb(12),redoxrb12,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L7,RedoxRb(13),redoxrb13,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L7,RedoxRb(14),redoxrb14,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L8,RedoxRb(15),redoxrb15,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L8,RedoxRb(16),redoxrb16,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_5cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L9,RedoxRb(17),redoxrb17,"Redox at 5cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+redox_15cm_refb,Chapada_Low,802,Chapada_Low_Redox15,L9,RedoxRb(18),redoxrb18,"Redox at 15 cm, calculated using reference probe B",chamber,15,2025-09-01T00:00:00Z,NA
+logger,Chapada_Low,802,Chapada_Low_Teros12Table,low,Logger,logger,logger name,zone,15,2025-09-01T00:00:00Z,NA
+timestamp_local,Chapada_Low,802,Chapada_Low_Teros12Table,low,TIMESTAMP,timestamp,timestamp,zone,15,2025-09-01T00:00:00Z,NA
+record,Chapada_Low,802,Chapada_Low_Teros12Table,low,RECORD,record,record,zone,15,2025-09-01T00:00:00Z,NA
+packbus_id,Chapada_Low,802,Chapada_Low_Teros12Table,low,PB,pb,logger packbus number,zone,15,2025-09-01T00:00:00Z,NA
+logger_name,Chapada_Low,802,Chapada_Low_Teros12Table,low,Statname,statname,logger name,zone,15,2025-09-01T00:00:00Z,NA
+battv_avg,Chapada_Low,802,Chapada_Low_Teros12Table,low,BattV_Avg,battv_avg,Voltage input from battery,zone,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L1,"Teros12(1,1)",teros12_1_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L1,"Teros12(1,2)",teros12_1_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L1,"Teros12(1,3)",teros12_1_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L2,"Teros12(2,1)",teros12_2_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L2,"Teros12(2,2)",teros12_2_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L2,"Teros12(2,3)",teros12_2_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L3,"Teros12(3,1)",teros12_3_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L3,"Teros12(3,2)",teros12_3_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L3,"Teros12(3,3)",teros12_3_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L4,"Teros12(4,1)",teros12_4_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L4,"Teros12(4,2)",teros12_4_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L4,"Teros12(4,3)",teros12_4_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L5,"Teros12(5,1)",teros12_5_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L5,"Teros12(5,2)",teros12_5_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L5,"Teros12(5,3)",teros12_5_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L6,"Teros12(6,1)",teros12_6_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L6,"Teros12(6,2)",teros12_6_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L6,"Teros12(6,3)",teros12_6_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L7,"Teros12(7,1)",teros12_7_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L7,"Teros12(7,2)",teros12_7_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L7,"Teros12(7,3)",teros12_7_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L8,"Teros12(8,1)",teros12_8_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L8,"Teros12(8,2)",teros12_8_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L8,"Teros12(8,3)",teros12_8_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA
+volumetric_water_content_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L9,"Teros12(9,1)",teros12_9_1,calibrated ADC counts for volumetric water content,chamber,15,2025-09-01T00:00:00Z,NA
+air_temperature_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L9,"Teros12(9,2)",teros12_9_2,air temperature,chamber,15,2025-09-01T00:00:00Z,NA
+electrical_conductivity_teros12,Chapada_Low,802,Chapada_Low_Teros12Table,L9,"Teros12(9,3)",teros12_9_3,bulk electrical conductivity normalized to 25 degrees C,chamber,15,2025-09-01T00:00:00Z,NA

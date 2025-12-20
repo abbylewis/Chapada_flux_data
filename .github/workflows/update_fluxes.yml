@@ -40,6 +40,11 @@ jobs:
           Rscript packages.R
           Rscript ./R/download_redox.R
         
+      - name: Update teros
+        run: |
+          Rscript packages.R
+          Rscript ./R/download_teros.R
+        
       - name: Commit and push
         run: |
           git config --global user.name 'abbylewis'
