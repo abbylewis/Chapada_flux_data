@@ -13,3 +13,13 @@ load_data <- function(file){
   
   return(data_small)
 }
+
+load_redox <- function(file){
+  data_raw <- read_csv(file, col_types = cols(.default = "c"), skip = 1)
+  location = str_extract(tolower(file), "high|low")
+  
+  data_small <- data_raw %>%
+    mutate(location = location)
+  
+  return(data_small)
+}

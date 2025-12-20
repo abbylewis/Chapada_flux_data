@@ -2,9 +2,10 @@
 source("./R/drop_dir.R")
 source("./R/get_dropbox_token.R")
 source("./R/load_file.R")
+source("./R/load_dataR")
 library(tidyverse)
 
-download_redox <- function(met_folder = here::here("Raw_data", "redox")){
+download_redox <- function(redox_folder = here::here("Raw_data", "redox")){
   #Identify all files
   files <- drop_dir(path = "Chapada_Loggernet_Data/archived_data")
   relevant_files <- files %>%
@@ -13,7 +14,7 @@ download_redox <- function(met_folder = here::here("Raw_data", "redox")){
     filter(grepl("Redox15", name))
   
   #Remove files that are already loaded
-  already_loaded <- list.files(met_folder)
+  already_loaded <- list.files(redox_folder)
   relevant_files <- relevant_files %>%
     filter(!name %in% already_loaded,
            !grepl("backup", name))
@@ -22,30 +23,43 @@ download_redox <- function(met_folder = here::here("Raw_data", "redox")){
   new <- current %>%
     filter(!grepl("backup", name)) %>%
     pull(path_display) %>%
-    map(load_file, output_dir = met_folder)
+    map(load_file, output_dir = redox_folder)
   
   if(nrow(relevant_files) == 0){
     message("No new files to download")
   } else {
     message("Downloading ", nrow(relevant_files), " files")
     all_data <- relevant_files$path_display %>%
-      map(load_file, output_dir = met_folder)
+      map(load_file, output_dir = redox_folder)
   }
   
   message("Processing and saving all historical redox data")
   
-  data <- list.files(met_folder, full.names = T) %>%
-    map(read.csv, skip = 1) %>%
+  design <- read_csv("https://raw.githubusercontent.com/Smithsonian/Chapada_Stem/refs/heads/main/design_tables/design.csv?token=GHSAT0AAAAAADANABGX4IW7XD5WWCPJLNBY2KGB7SA",
+                     show_col_types = F) %>%
+    mutate(location = ifelse(grepl("H", link), "high", "low"))
+  
+  data <- list.files(redox_folder, full.names = T) %>%
+    map(load_redox) %>%
     bind_rows() %>%
     filter(!TIMESTAMP == "TS") %>%
     mutate(TIMESTAMP = as_datetime(TIMESTAMP)) %>%
     filter(!is.na(TIMESTAMP)) %>%
-    distinct()
+    select(-RECORD, -BattV, -Statname) %>%
+    distinct() %>%
+    pivot_longer(contains("redox", ignore.case = T),
+                 names_to = "loggernet_variable") %>%
+    left_join(design %>%
+                select(loggernet_variable, research_name, link, location) %>%
+                distinct()) %>%
+    mutate(chamber = as.numeric(gsub("H|L", "", link)),
+           depth = as.numeric(str_extract(research_name, "[1]*5")),
+           ref = str_extract(research_name, "refa|refb")) %>%
+    select(-research_name)
   
   #Not sure what column names mean yet
   write_csv(data %>%
-              filter(TIMESTAMP >= as.Date("2025-03-18")) %>%
-              select(all_of(c("TIMESTAMP", "SlrFD_W_Avg", "AirT_C_Avg", "Rain_mm_Tot"))), 
-            here::here("processed_data", "met_2025_dashboard.csv"))
+              filter(TIMESTAMP >= as.Date("2025-03-18")),
+            here::here("processed_data", "redox_2025_dashboard.csv"))
   return(T)
 }
