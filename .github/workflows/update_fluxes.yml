@@ -44,6 +44,11 @@ jobs:
         run: |
           Rscript packages.R
           Rscript ./R/download_teros.R
+          
+      - name: Update bme
+        run: |
+          Rscript packages.R
+          Rscript ./R/download_bme.R
         
       - name: Commit and push
         run: |
