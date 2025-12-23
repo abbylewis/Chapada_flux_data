@@ -75,7 +75,7 @@ input$chambers_co2 <- c(10,20,30,40,50,60,70,80)
 
 ```{r}
 #| panel: fill
-plotlyOutput('plot1', height = 500)
+plotlyOutput('plot1', height = 420)
 ```
 
 ```{r}
@@ -125,7 +125,7 @@ splitLayout(
 
 ```{r}
 #| panel: fill
-plotlyOutput('plot2', height = 500)
+plotlyOutput('plot2', height = 420)
 ```
 
 ```{r}
@@ -175,7 +175,7 @@ splitLayout(
 
 ```{r}
 #| panel: fill
-plotlyOutput('plot3', height = 500)
+plotlyOutput('plot3', height = 420)
 ```
 
 ```{r}

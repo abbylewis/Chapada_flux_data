@@ -6,11 +6,17 @@
 library(tidyverse)
 library(data.table)
 source("R/download_met.R")
+source("R/download_bme.R")
+source("R/download_redox.R")
+source("R/download_teros.R")
 
 # Load slopes
 df <- read_csv("processed_data/L0.csv", show_col_types = F)
-# Update met
+# Update all files
 download_met()
+download_redox()
+download_teros()
+download_bme()
 # Load met
 met <- read_csv("processed_data/met_2025_dashboard.csv")
 
