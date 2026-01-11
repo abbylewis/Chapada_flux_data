@@ -42,7 +42,7 @@ merged <- met[df, roll = "nearest"] %>% # Rolling join: nearest met to each flux
            265.8 / (0.08206*(Ta + 273.15)) / (60*60*24) / 0.196,
          chamber = paste0(location, Fluxing_Chamber)) %>% 
   filter(!is.na(location),
-         year(DateTime) == 2025) %>%
+         year(DateTime) >= 2025) %>%
   ungroup() %>%
   select(chamber, DateTime, NEE, CH4, PAR, Ta)
 
