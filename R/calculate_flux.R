@@ -91,7 +91,6 @@ calculate_flux <- function(start_date = NULL,
   
   #Group flux intervals, prep for slopes
   grouped_data <- data_numeric %>%
-    mutate(date = as.Date(TIMESTAMP, tz = "Etc/GMT-3")) %>%
     #Group flux intervals
     group_by(location) %>%
     arrange(TIMESTAMP) %>%
@@ -100,6 +99,7 @@ calculate_flux <- function(start_date = NULL,
     #Record the amount of time from when chamber closed
     mutate(start = min(TIMESTAMP),
            end = max(TIMESTAMP),
+           date = as.Date(start, tz = "Etc/GMT-3"),
            change = as.numeric(difftime(TIMESTAMP, start, units = "days")),
            change_s = as.numeric(difftime(TIMESTAMP, start, units = "secs")),
            max_s = ifelse(sum(!is.na(CH4d_ppm) > 0),
