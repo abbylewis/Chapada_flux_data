@@ -109,6 +109,13 @@ calculate_flux <- function(start_date = NULL,
                           change_s[which.min(CH4d_ppm)],
                           NA),)
   
+  #grouped_data %>%
+  #  filter(as_date(TIMESTAMP) == "2026-01-02" & hour(TIMESTAMP) == 13) %>%
+  #  mutate(used = ifelse(Fluxing_Chamber == 60 & Manifold_Timer > 180, T, F)) %>%
+  #  ggplot(aes(x = TIMESTAMP, y = CO2d_ppm, color = used))+
+  #  geom_point()+
+  #  facet_wrap(~location)
+  
   #Save flags for data that will be removed in the next step
   flags <- grouped_data %>%
     ungroup() %>%
@@ -129,7 +136,7 @@ calculate_flux <- function(start_date = NULL,
               .groups = "drop") 
   
   #Filter
-  start_cutoff <- 80 #Buffer of time after flux window
+  start_cutoff <- 180 #Buffer of time after flux window. Changed from 80 to 180 on April 3, 2026
   end_cutoff <- 680
   filtered_data <- grouped_data %>%
     group_by(group, Fluxing_Chamber)  %>%
@@ -213,6 +220,7 @@ group_fun <- function(Fluxing_Chamber) {
   }
   return(group)
 }
+
 #calculate_flux(start_date = "2024-10-01", 
 #               end_date = Sys.Date()+1,
 #               modif_start_date = NULL,
