@@ -57,7 +57,9 @@ download_teros <- function(teros_folder = here::here("Raw_data", "teros")){
     select(-research_name)
   
   write_csv(data %>%
-              filter(TIMESTAMP >= as.Date("2025-03-18")),
+              filter(TIMESTAMP >= as.Date("2025-09-18")) %>%
+              select(-link, -loggernet_variable) %>%
+              mutate(value = round(as.numeric(value), 1)),
             here::here("processed_data", "teros_2025_dashboard.csv"))
   return(T)
 }
