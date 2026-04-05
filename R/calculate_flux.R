@@ -193,11 +193,6 @@ calculate_flux <- function(start_date = NULL,
     slopes_comb <- bind_rows(old_slopes, slopes)
   } else {
     slopes_comb <- slopes
-    #Whenever we reprocess everything, save the raw output for QAQC efforts
-    round_comb <- function(x){round(as.numeric(x), 2)}
-    write.csv(data_small %>%
-                mutate(across(c(CO2d_ppm), round_comb)),
-              here::here("processed_data","raw_small.csv"), row.names = FALSE)
   }
   
   #Output

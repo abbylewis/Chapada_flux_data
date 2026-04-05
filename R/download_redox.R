@@ -57,10 +57,15 @@ download_redox <- function(redox_folder = here::here("Raw_data", "redox")){
            ref = str_extract(research_name, "refa|refb")) %>%
     select(-research_name)
   
-  write_csv(data %>%
-              filter(TIMESTAMP >= as.Date("2025-09-18")) %>%
-              select(-link, -loggernet_variable) %>%
-              mutate(value = round(as.numeric(value), 1)),
+  data_hourly <- data  %>%
+    filter(TIMESTAMP >= as.Date("2025-09-18")) %>%
+    select(-link, -loggernet_variable) %>%
+    mutate(TIMESTAMP = round_date(TIMESTAMP, "hour")) %>%
+    group_by(TIMESTAMP, location, chamber, depth, ref) %>%
+    summarize(value = mean(as.numeric(value)), .groups = "drop") %>%
+    mutate(value = round(value, 1))
+  
+  write_csv(data_hourly,
             here::here("processed_data", "redox_2025_dashboard.csv"))
   return(T)
 }

@@ -56,10 +56,15 @@ download_teros <- function(teros_folder = here::here("Raw_data", "teros")){
            var = sub("_teros12", "", research_name)) %>%
     select(-research_name)
   
-  write_csv(data %>%
-              filter(TIMESTAMP >= as.Date("2025-09-18")) %>%
-              select(-link, -loggernet_variable) %>%
-              mutate(value = round(as.numeric(value), 1)),
+  data_hourly <- data  %>%
+    filter(TIMESTAMP >= as.Date("2025-09-18")) %>%
+    select(-link, -loggernet_variable) %>%
+    mutate(TIMESTAMP = round_date(TIMESTAMP, "hour")) %>%
+    group_by(TIMESTAMP, location, chamber, var) %>%
+    summarize(value = mean(as.numeric(value)), .groups = "drop") %>%
+    mutate(value = round(value, 1))
+  
+  write_csv(data_hourly,
             here::here("processed_data", "teros_2025_dashboard.csv"))
   return(T)
 }
