@@ -1,0 +1,24 @@
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 11 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: rocker/tidyverse:4.4.1
+      
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      
+    - name: load packages
+      run: install.packages(c("rsconnect", "slackr"))
+      shell: Rscript {0}
+      
+    - name: set env and run
+      env:
+        SLACKRTOKEN: ${{ secrets.SLACKRTOKEN }}
+        SLACKRURL: ${{ secrets.SLACKRURL }}
+      run:  Rscript "./R/run_slackr.R"
