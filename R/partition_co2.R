@@ -32,14 +32,29 @@ setDT(met)
 setkey(df, DateTime)
 setkey(met, DateTime)
 
+merged <- met[df, roll = "nearest"] # Rolling join: nearest met to each flux
+
 #Join and format
-merged <- met[df, roll = "nearest"] %>% # Rolling join: nearest met to each flux
+chamber_height_high = 100 # cm
+chamber_radius = 45/2 # cm
+chamber_area = pi*(chamber_radius/100)^2 # m2
+chamber_volume_high = chamber_height_high/100 * # m
+  chamber_area * 1000 #L
+
+chamber_height_low = 150 # cm
+chamber_volume_low = chamber_height_low/100 * # m
+  chamber_area * 1000 #L
+
+merged <- merged %>% 
   rename(Ta = AirT_C_Avg,
          PAR = SlrFD_W_Avg) %>%
-  mutate(NEE = CO2_slope_ppm_per_day * #CONVERT TO umolCO2/m2/s
-           265.8 / (0.08206*(Ta + 273.15)) / (60*60*24) / 0.196,
+  mutate(chamber_volume = ifelse(location == "high",
+                                 chamber_volume_high,
+                                 chamber_volume_low),
+         NEE = CO2_slope_ppm_per_day * #CONVERT TO umolCO2/m2/s
+           chamber_volume / (0.08206 * (Ta + 273.15)) / (60 * 60 * 24) / chamber_area,
          CH4 = CH4_slope_ppm_per_day * #CONVERT TO umolCH4/m2/s
-           265.8 / (0.08206*(Ta + 273.15)) / (60*60*24) / 0.196,
+           chamber_volume / (0.08206 * (Ta + 273.15)) / (60 * 60 * 24) / chamber_area,
          chamber = paste0(location, Fluxing_Chamber)) %>% 
   filter(!is.na(location),
          year(DateTime) >= 2025) %>%
@@ -55,17 +70,27 @@ merged[, is_night := PAR < par_night_thresh]
 # Model: log(Reco) = a + b*(Ta - Tref); where b = ln(Q10)/10. We'll use Tref = 10°C.
 
 # helper function to fit Q10 (log-linear)
-fit_q10_lm <- function(dt_night, Tref = 10, min_night = 5) {
+fit_q10_lm <- function(dt_night, Tref = 10, min_night = 40) {
   # dt_night: data.table with columns NEE, Ta; NEE must be > 0
-  if (nrow(dt_night) < min_night) return(NULL)
-  dt_night <- dt_night[NEE > 0 & is.finite(Ta)]
-  if (nrow(dt_night) < min_night) return(NULL)
+  dt_night <- dt_night[
+    is.finite(NEE) &
+      NEE > 0 &
+      is.finite(Ta)
+  ]
+  
+  if (nrow(dt_night) < min_night) {
+    return(NULL)
+  }
+  
   X <- dt_night[, Ta - Tref]
   Y <- log(dt_night$NEE)
   fit <- try(lm(Y ~ X), silent = TRUE)
-  if (inherits(fit, "try-error")) return(NULL)
+  if (inherits(fit, "try-error")) {
+    return(NULL)
+  }
   coef <- coefficients(fit)
-  a <- coef[1]; b <- coef[2]
+  a <- coef[1]
+  b <- coef[2]
   Rref <- exp(a)
   Q10 <- exp(b * 10)
   return(list(Rref = as.numeric(Rref), Q10 = as.numeric(Q10), n = nrow(dt_night), fit = fit))
@@ -73,34 +98,41 @@ fit_q10_lm <- function(dt_night, Tref = 10, min_night = 5) {
 
 # Function: moving-window parameter estimation per chamber
 estimate_params_moving_window <- function(
-    dt_ch, window_days = 30, step_days = 1, 
-    par_night_thresh = 5, Tref = 10) {
+    dt_ch, window_days = 100, step_days = 1,
+    par_night_thresh = 5, Tref = 10
+) {
   # dt_ch: data.table for one chamber
-  if (nrow(dt_ch) == 0) return(NULL)
+  if (nrow(dt_ch) == 0) {
+    return(NULL)
+  }
   start_time <- min(dt_ch$DateTime, na.rm = TRUE)
-  end_time   <- max(dt_ch$DateTime, na.rm = TRUE)
+  end_time <- max(dt_ch$DateTime, na.rm = TRUE)
   centers <- seq(from = start_time, to = end_time, by = paste0(step_days, " days"))
   res_list <- vector("list", length(centers))
   for (i in seq_along(centers)) {
     center <- centers[i]
-    wstart <- center - as.difftime(window_days/2, units = "days")
-    wend   <- center + as.difftime(window_days/2, units = "days")
+    wstart <- center - as.difftime(window_days / 2, units = "days")
+    wend <- center + as.difftime(window_days / 2, units = "days")
     wnd <- dt_ch[DateTime >= wstart & DateTime <= wend]
     # nighttime points (PAR-based)
     wnd_night <- wnd[PAR < par_night_thresh & is.finite(NEE) & NEE > 0 & is.finite(Ta)]
     fit <- fit_q10_lm(wnd_night, Tref = Tref)
     if (!is.null(fit)) {
-      res_list[[i]] <- data.table(chamber = dt_ch$chamber[1],
-                                  center = center,
-                                  Rref = fit$Rref,
-                                  Q10 = fit$Q10,
-                                  n_night = fit$n)
+      res_list[[i]] <- data.table(
+        chamber = dt_ch$chamber[1],
+        center = center,
+        Rref = fit$Rref,
+        Q10 = fit$Q10,
+        n_night = fit$n
+      )
     } else {
-      res_list[[i]] <- data.table(chamber = dt_ch$chamber[1],
-                                  center = center,
-                                  Rref = NA_real_,
-                                  Q10 = NA_real_,
-                                  n_night = ifelse(is.null(wnd_night), 0, nrow(wnd_night)))
+      res_list[[i]] <- data.table(
+        chamber = dt_ch$chamber[1],
+        center = center,
+        Rref = NA_real_,
+        Q10 = NA_real_,
+        n_night = nrow(wnd_night)
+      )
     }
   }
   res_dt <- rbindlist(res_list)
