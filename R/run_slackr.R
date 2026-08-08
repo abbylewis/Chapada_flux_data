@@ -43,15 +43,32 @@ if (nrow(error_check) > 0) {
   slackr::slackr_setup(token = Sys.getenv("SLACKRTOKEN"),
                        incoming_webhook_url = Sys.getenv("SLACKRURL"))
   
-  unique_7810 <- unique(error_check$Diag)
-  unique_7810 <- unique_7810[!is.na(unique_7810)]
+  unique_7810 <- error_check%>%
+    select(Diag, location) %>%
+    distinct()
+  
+  if("high" %in% unique_7810$location){
+    unique_high <- unique_7810$Diag[unique_7810$location == "high"]
+  } else {
+    unique_high <- 0
+  }
+  if("low" %in% unique_7810$location){
+    unique_low <- unique_7810$Diag[unique_7810$location == "low"]
+  } else {
+    unique_low <- 0
+  }
+  
+  text <- ifelse(length(unique(unique_7810$location))>1, 
+                 " both of the Chapada LI-7810s have ",
+                 " one of the Chapada LI-7810s has ")
   
   slackr::slackr_msg(
     channel = "#chapada_stem",
     username = "Chapada QAQC bot",
     txt = paste0(
-    "Hi team- it looks like the Chapada LI-7810 has been showing error codes. \n",
-    "Codes today: ", paste(unique_7810, collapse = ", "), "\n",
+    "Hi team- it looks like", text, "been showing error codes. \n",
+    "Codes today (high): ", paste(unique_high, collapse = ", "), "\n",
+    "Codes today (low): ", paste(unique_low, collapse = ", "), "\n",
     "You can visualize when the errors happened on the dashboard:\n",
     "https://aslewis.shinyapps.io/chapada_dashboard/",
     "\nThanks! -chapada bot"
