@@ -35,7 +35,11 @@ calculate_flux <- function(start_date = NULL,
   data_small <- autochamber::load_loggernet_flux_data(
     files,
     format = "Chapada"
-  ) %>%
+  ) |>
+    dplyr::mutate(
+      Diag = as.integer(dplyr::na_if(Diag, "NAN")),
+      Chamber = as.integer(Chamber)
+    ) |>
     mutate(TIMESTAMP = as_datetime(TIMESTAMP, tz = "EST")) %>%
     filter(!is.na(TIMESTAMP)) %>%
     distinct()
@@ -87,6 +91,32 @@ calculate_flux <- function(start_date = NULL,
             here::here("processed_data", "raw_for_dashboard.csv"),
             row.names = FALSE
   )
+  
+  # Export errors
+  if("Diag" %in% colnames(data_small)) {
+    data_errors <- data_small |>
+      dplyr::select(TIMESTAMP, location, Chamber, Diag)
+    
+    # Load older data
+    old_errors <- readr::read_csv(here::here("processed_data", "error_codes.csv"),
+                                  show_col_types = F
+    ) |>
+      dplyr::mutate(
+        TIMESTAMP = lubridate::force_tz(TIMESTAMP, tz = "EST"),
+        Diag = as.integer(Diag),
+        Chamber = as.integer(Chamber))
+    
+    #Combine
+    errors_comb <- autochamber::combine_slopes(new = data_errors, old = old_errors)
+    
+    errors_small <- errors_comb |>
+      dplyr::filter(lubridate::second(TIMESTAMP) == 0)
+    
+    write.csv(errors_small,
+              here::here("processed_data", "error_codes.csv"),
+              row.names = FALSE
+    )
+  }
   
   return(slopes_out)
 }
