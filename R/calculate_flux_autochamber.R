@@ -73,7 +73,7 @@ calculate_flux <- function(start_date = NULL,
     gs_url = "https://docs.google.com/spreadsheets/d/103PpjEmjLAQkov9ywjA5KxyJiIP3nEWy7V8gWVZhd1M/edit?gid=0#gid=0",
     group_cols = "location"
   ) %>%
-    rename(MIU_VALVE = Chamber) #for compatibility downstream
+    rename(Fluxing_Chamber = Chamber) #for compatibility downstream
   
   # Output
   write.csv(slopes_out %>%
@@ -104,7 +104,8 @@ calculate_flux <- function(start_date = NULL,
       dplyr::mutate(
         TIMESTAMP = lubridate::force_tz(TIMESTAMP, tz = "EST"),
         Diag = as.integer(Diag),
-        Chamber = as.integer(Chamber))
+        Chamber = as.integer(Chamber)) %>%
+      dplyr::rename(Chamber = Fluxing_Chamber)
     
     #Combine
     errors_comb <- autochamber::combine_slopes(new = data_errors, old = old_errors)
