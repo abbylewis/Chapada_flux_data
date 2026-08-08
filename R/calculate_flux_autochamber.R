@@ -104,8 +104,7 @@ calculate_flux <- function(start_date = NULL,
       dplyr::mutate(
         TIMESTAMP = lubridate::force_tz(TIMESTAMP, tz = "EST"),
         Diag = as.integer(Diag),
-        Chamber = as.integer(Chamber)) %>%
-      dplyr::rename(Chamber = Fluxing_Chamber)
+        Chamber = as.integer(Chamber))
     
     #Combine
     errors_comb <- autochamber::combine_slopes(new = data_errors, old = old_errors)
