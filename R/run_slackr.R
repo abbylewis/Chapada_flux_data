@@ -2,6 +2,7 @@ install.packages("rsconnect")
 install.packages("here")
 install.packages("slackr")
 library(tidyverse)
+Sys.setenv(TZ = "EST")
 
 # Check for errors
 data <- read_csv(here::here("processed_data", "L0.csv"))
