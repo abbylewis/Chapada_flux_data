@@ -116,8 +116,8 @@ if (sum(error_check$Diag[!is.na(error_check$Diag)]) > 0) {
     username = "Chapada QAQC bot",
     txt = paste0(
       "Hi team- it looks like", text, "been showing error codes. \n\n",
-      "Codes today (high):\n", high_text, "\n",
-      "Codes today (low):\n", low_text, "\n",
+      "Codes today (high):\n", high_text, "\n\n",
+      "Codes today (low):\n", low_text, "\n\n",
       "You can visualize when the errors happened on the dashboard:\n",
       "https://aslewis.shinyapps.io/chapada_dashboard/",
       "\n\nThanks! -Chapada bot"
