@@ -46,8 +46,8 @@ calculate_flux <- function(start_date = NULL,
   
   slopes <- autochamber::calculate_flux(
     data_small,
-    cutoff_start = 180,
-    cutoff_end = 680,
+    cutoff_start = 260,
+    cutoff_end = 720,
     group_cols = "location"
   )
   

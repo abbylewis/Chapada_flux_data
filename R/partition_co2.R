@@ -36,12 +36,11 @@ merged <- met[df, roll = "nearest"] # Rolling join: nearest met to each flux
 
 #Join and format
 chamber_height_high = 100 # cm
+chamber_height_low = 150 # cm
 chamber_radius = 45/2 # cm
 chamber_area = pi*(chamber_radius/100)^2 # m2
 chamber_volume_high = chamber_height_high/100 * # m
   chamber_area * 1000 #L
-
-chamber_height_low = 150 # cm
 chamber_volume_low = chamber_height_low/100 * # m
   chamber_area * 1000 #L
 
