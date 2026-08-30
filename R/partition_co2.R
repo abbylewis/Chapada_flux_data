@@ -9,20 +9,69 @@ source("R/download_met.R")
 source("R/download_bme.R")
 source("R/download_redox.R")
 source("R/download_teros.R")
+Sys.setenv(TZ = "EST")
 
 # Load slopes
-df <- read_csv("processed_data/L0.csv", show_col_types = F)
+target <- read_csv("processed_data/L0.csv", show_col_types = F) %>%
+  mutate(flux_start = force_tz(flux_start, tzone = "EST"),
+         flux_end = force_tz(flux_end, tzone = "EST"),
+         TIMESTAMP = force_tz(TIMESTAMP, tzone = "EST"),
+         CH4_se = log(CH4_se),
+         CO2_se = log(CO2_se)) %>%
+  #rename(Chamber = chamber) %>%
+  rename(flux_time = TIMESTAMP) %>%
+  filter(!duplicated(flux_time))
 # Update all files
 download_met()
 download_redox()
 download_teros()
 download_bme()
 # Load met
-met <- read_csv("processed_data/met_2025_dashboard.csv")
+met <- read_csv("processed_data/met_2025_dashboard.csv") %>%
+  mutate(
+    TIMESTAMP = force_tz(TIMESTAMP, tzone = "EST"),
+    temp_time = TIMESTAMP) %>%
+  filter(!is.na(TIMESTAMP),
+         !duplicated(TIMESTAMP)) %>%
+  select(-TIMESTAMP)
+
+#QAQC
+filt <- target %>%
+  ungroup() %>%
+  arrange(flux_time) %>%
+  dplyr::mutate(
+    #Can't have negative ebullition
+    CH4_slope_ppm_per_day = ifelse(!is.na(ebullition) & 
+                                     ebullition &
+                                     CH4_slope_ppm_per_day_ebullition < 0,
+                                   NA,
+                                   CH4_slope_ppm_per_day),
+  )
+
+#Visualize
+#filt %>%
+#  filter(!ebullition) %>%
+#  ggplot(aes(x = flux_time, y = CH4_slope_ppm_per_day)) +
+#  geom_line() +
+#  theme_minimal() +
+#  facet_wrap(~chamber)
+
+#### Add ebullition ####
+df <- filt %>%
+  mutate(
+    # Some were removed intentionally
+    CH4_slope_ppm_per_day_ebullition = 
+      ifelse(is.na(CH4_slope_ppm_per_day),
+             NA,
+             CH4_slope_ppm_per_day_ebullition),
+    CH4_slope_ppm_per_day = ifelse(!is.na(ebullition) & ebullition == T,
+                                   CH4_slope_ppm_per_day_ebullition, 
+                                   CH4_slope_ppm_per_day),
+  )
 
 # Format
-df$DateTime <- as.POSIXct(df$TIMESTAMP, tz = "EST")
-met$DateTime <- as.POSIXct(met$TIMESTAMP, tz = "EST")
+df$DateTime <- as.POSIXct(df$flux_time, tz = "EST")
+met$DateTime <- as.POSIXct(met$temp_time, tz = "EST")
 
 # Convert to data.table
 setDT(df) 
@@ -32,7 +81,18 @@ setDT(met)
 setkey(df, DateTime)
 setkey(met, DateTime)
 
-merged <- met[df, roll = "nearest"] # Rolling join: nearest met to each flux
+# Match meteorological drivers by nearest time
+merged <- met[
+  df,
+  on = .(DateTime),
+  roll = "nearest"
+]
+
+# Time difference between flux and matched met
+merged[, met_time_diff := abs(temp_time - flux_time)]
+
+merged[met_time_diff > 30 * 60, # 30 minute window
+       c("AirTC_Avg", "PAR_Den_C_Avg", "Depth_cm") := NA]
 
 #Join and format
 chamber_height_high = 100 # cm
@@ -58,7 +118,11 @@ merged <- merged %>%
   filter(!is.na(location),
          year(DateTime) >= 2025) %>%
   ungroup() %>%
-  select(chamber, DateTime, NEE, CH4, PAR, Ta)
+  select(chamber, DateTime, flux_time, NEE, CH4, PAR, Ta, CH4_R2, CO2_R2, CH4_se, CO2_se)
+
+merged %>%
+  group_by(chamber) %>%
+  summarize(n = sum(is.na(CH4)))
 
 # Identify nighttime
 par_night_thresh <- 5  # µmol m-2 s-1 threshold to define night
@@ -152,49 +216,90 @@ params_dt <- rbindlist(params_all, use.names = TRUE, fill = TRUE)
 # Remove rows where center is NA (if any)
 params_dt <- params_dt[!is.na(center)]
 
+
 # Interpolate Rref & Q10 to every flux timestamp
 # For each chamber, use linear interpolation of Rref and Q10 over time.
 # For timestamps outside params range, use nearest available (rule = 2 in approx -> constant extrapolate)
 merged[, Rref_t := NA_real_]
 merged[, Q10_t := NA_real_]
 
+make_grid <- function(g) {
+  data.table(
+    DateTime = seq(min(g$DateTime),
+                   max(g$DateTime),
+                   by = "130 min"
+    ),
+    chamber = unique(g$chamber)
+  )
+}
+
+grid <- merged[, make_grid(.SD), by = chamber]
+
+setkey(merged, chamber, DateTime)
+setkey(grid, chamber, DateTime)
+merged_grid <- merged[grid, roll = "nearest"] #grab nearest observation
+#has to be within 65 min
+merged_grid[, time_diff := abs(DateTime - flux_time)]
+cols <- setdiff(names(merged_grid), c("DateTime", "chamber"))
+merged_grid[time_diff > 3900, (cols) := NA]
+merged_grid[, c("Ta", "PAR") := NULL]
+
+# Match meteorological drivers by nearest time
+merged_grid_final <- met[
+  merged_grid,
+  on = .(DateTime),
+  roll = "nearest"
+]
+
+setnames(
+  merged_grid_final,
+  old = c("AirT_C_Avg", "SlrFD_W_Avg"),
+  new = c("Ta", "PAR")
+)
+
+merged_grid_final[
+  abs(temp_time - DateTime) > 24 * 60 * 60, # Soil temp changes very slowly. 1.5 days is okay
+  Ta := NA_real_
+]
+
 for (ch in chambers) {
-  pch <- params_dt[chamber == ch & !is.na(Rref) & !is.na(Q10)]
+  pch <- params_dt[chamber == ch & !is.na(Rref) & !is.na(Q10)][order(center)]
   if (nrow(pch) == 0) next
   # ensure unique centers
   pch <- unique(pch, by = "center")
-  x <- as.numeric(pch$center)  # seconds since epoch
+  x <- as.numeric(pch$center) # seconds since epoch
   yR <- pch$Rref
   yQ <- pch$Q10
-  targ_idx <- which(merged$chamber == ch)
-  xt <- as.numeric(merged$DateTime[targ_idx])
+  targ_idx <- which(merged_grid_final$chamber == ch)
+  xt <- as.numeric(merged_grid_final$DateTime[targ_idx])
   # approx with rule=2: use nearest outside range
   Rinterp <- approx(x = x, y = yR, xout = xt, rule = 2, ties = "ordered")$y
   Qinterp <- approx(x = x, y = yQ, xout = xt, rule = 2, ties = "ordered")$y
-  merged[targ_idx, Rref_t := Rinterp]
-  merged[targ_idx, Q10_t  := Qinterp]
+  merged_grid_final[targ_idx, Rref_t := Rinterp]
+  merged_grid_final[targ_idx, Q10_t := Qinterp]
 }
 
 # Predict Reco using time-varying parameters
 # Reco = Rref_t * Q10_t ^ ((Ta - Tref)/10)
-merged[, Reco := NA_real_]
-Tref = 10
-ok_mask <- is.finite(merged$Rref_t) & is.finite(merged$Q10_t) & is.finite(merged$Ta)
-merged[ok_mask, Reco := Rref_t * (Q10_t ^ ((Ta[ok_mask] - Tref)/10))]
+merged_grid_final[, Reco := NA_real_]
+Tref <- 10
+merged_grid_final[!is.na(Rref_t) & !is.na(Q10_t) & !is.na(Ta),
+                  Reco := Rref_t * (Q10_t^((Ta - Tref) / 10))]
 
 # Compute daytime GPP = Reco - NEE
-merged[, is_day := PAR >= par_night_thresh]
-merged[, GPP := NA_real_]
-day_mask <- merged$is_day & is.finite(merged$Reco) & is.finite(merged$NEE)
-merged[day_mask, GPP := Reco - NEE]
-# enforce non-negative GPP if desired
-merged[day_mask & GPP < 0, GPP := 0]
+merged_grid_final[, is_day := PAR >= par_night_thresh]
+merged_grid_final[, GPP := NA_real_]
+day_mask <- merged_grid_final$is_day & is.finite(merged_grid_final$Reco) & is.finite(merged_grid_final$NEE)
+merged_grid_final[day_mask, GPP := Reco - NEE]
+# enforce non-negative GPP
+merged_grid_final[day_mask & GPP < 0, GPP := 0]
+merged_grid_final[is.na(NEE), GPP := NA]
+# merged_grid_final[is.na(NEE), Reco := NA]
 
-#Parse chamber names
-merged <- merged %>%
-  mutate(Fluxing_Chamber = str_extract(merged$chamber, "[0-9]+"),
-         location = str_extract(merged$chamber, "[a-z]+")) %>%
+merged_export <- merged_grid_final %>%
+  mutate(Fluxing_Chamber = str_extract(chamber, "[0-9]+"),
+         location = str_extract(chamber, "[a-z]+")) %>%
   select(-chamber)
 
-write_csv(merged, "processed_data/partitioned_co2.csv")
+write_csv(merged_export, "processed_data/partitioned_co2.csv")
 

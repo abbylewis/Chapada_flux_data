@@ -41,7 +41,8 @@ calculate_flux <- function(start_date = NULL,
       Chamber = as.integer(Chamber)
     ) |>
     mutate(TIMESTAMP = as_datetime(TIMESTAMP, tz = "EST")) %>%
-    filter(!is.na(TIMESTAMP)) %>%
+    filter(!is.na(TIMESTAMP),
+           TIMESTAMP >= as_datetime("2025-09-18 00:00:00", tz = "EST")) %>%
     distinct()
   
   slopes <- autochamber::calculate_flux(
@@ -69,10 +70,11 @@ calculate_flux <- function(start_date = NULL,
   }
   
   slopes_out <- autochamber::add_maintenance_log(
-    slopes = slopes_comb,
+    slopes = slopes_comb %>% mutate(Chamber = Chamber/10),
     gs_url = "https://docs.google.com/spreadsheets/d/103PpjEmjLAQkov9ywjA5KxyJiIP3nEWy7V8gWVZhd1M/edit?gid=0#gid=0",
     group_cols = "location"
   ) %>%
+    mutate(Chamber = Chamber * 10) %>%
     rename(Fluxing_Chamber = Chamber) #for compatibility downstream
   
   # Output
