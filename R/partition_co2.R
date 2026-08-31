@@ -106,7 +106,8 @@ chamber_volume_low = chamber_height_low/100 * # m
 
 merged <- merged %>% 
   rename(Ta = AirT_C_Avg,
-         PAR = SlrFD_W_Avg) %>%
+         PAR = SlrFD_W_Avg,
+         Ebullition_yn = ebullition) %>%
   mutate(chamber_volume = ifelse(location == "high",
                                  chamber_volume_high,
                                  chamber_volume_low),
@@ -118,7 +119,7 @@ merged <- merged %>%
   filter(!is.na(location),
          year(DateTime) >= 2025) %>%
   ungroup() %>%
-  select(chamber, DateTime, flux_time, NEE, CH4, PAR, Ta, CH4_R2, CO2_R2, CH4_se, CO2_se)
+  select(chamber, DateTime, flux_time, NEE, CH4, PAR, Ta, CH4_R2, CO2_R2, CH4_se, CO2_se, Ebullition_yn)
 
 merged %>%
   group_by(chamber) %>%
@@ -227,7 +228,7 @@ make_grid <- function(g) {
   data.table(
     DateTime = seq(min(g$DateTime),
                    max(g$DateTime),
-                   by = "130 min"
+                   by = "6750 sec"
     ),
     chamber = unique(g$chamber)
   )
@@ -241,7 +242,7 @@ merged_grid <- merged[grid, roll = "nearest"] #grab nearest observation
 #has to be within 65 min
 merged_grid[, time_diff := abs(DateTime - flux_time)]
 cols <- setdiff(names(merged_grid), c("DateTime", "chamber"))
-merged_grid[time_diff > 3900, (cols) := NA]
+merged_grid[time_diff > (6750/2), (cols) := NA]
 merged_grid[, c("Ta", "PAR") := NULL]
 
 # Match meteorological drivers by nearest time

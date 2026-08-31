@@ -246,50 +246,25 @@ ch4 %>%
   geom_point(aes(y = CH4_rf_edm), color = "red")+
   facet_grid(location~Fluxing_Chamber)
 
-write_csv(ch4, here::here("processed_data", "L2- partitioned_and_gap_filled.csv"))
+ch4_out <- ch4 %>%
+  rename(DateTime = TIMESTAMP,
+         AirTemp_C = Ta,
+         SlrFD_W_Avg = PAR) %>%
+  mutate(
+    CH4_umol_m2_h = CH4_filled * (60 * 60), # h instead of s
+    CO2_umol_m2_h_not_gapfilled = NEE * (60 * 60), 
+    GPP_umol_m2_h = GPP_filled * (60 * 60),
+    Reco_umol_m2_h = Reco * (60 * 60),
+    CO2_umol_m2_h = -GPP_umol_m2_h + Reco_umol_m2_h,
+    DateTime_EST = with_tz(DateTime, "EST"),
+    date = as_date(DateTime)
+  ) %>%
+  rename(CH4_umol_m2_h_not_gapfilled = CH4,
+         GPP_umol_m2_h_not_gapfilled = GPP) %>%
+  select(DateTime_EST, location, Fluxing_Chamber, 
+         CH4_umol_m2_h, CH4_umol_m2_h_not_gapfilled, CH4_R2, CH4_se, Ebullition_yn,
+         CO2_umol_m2_h, CO2_umol_m2_h_not_gapfilled, CO2_R2, CO2_se, 
+         Reco_umol_m2_h, GPP_umol_m2_h, GPP_umol_m2_h_not_gapfilled, 
+         AirTemp_C, SlrFD_W_Avg) 
 
-# varImpPlot(rf_ch4_models[[9]])
-#
-# library(pdp)
-#
-# vars <- c("Salinity","PAR", "Ta", "evi_predicted", "Depth_cm")
-#
-# pdp_list <- list()
-#
-# for (ch in names(rf_ch4_models)) {
-#
-#  rf_model <- rf_ch4_models[[ch]]
-#  train_ch <- train[MIU_VALVE == ch]
-#
-#  for (v in vars) {
-#
-#    pdp_obj <- partial(
-#      rf_model,
-#      pred.var = v,
-#      train = train_ch,
-#      grid.resolution = 50
-#    )
-#
-#    pdp_df <- as.data.frame(pdp_obj)
-#
-#    names(pdp_df)[1] <- "x"
-#
-#    pdp_df$variable <- v
-#    pdp_df$MIU_VALVE <- ch
-#
-#    pdp_list[[paste(ch, v, sep = "_")]] <- pdp_df
-#  }
-# }
-#
-# pdp_all <- bind_rows(pdp_list)
-#
-# ggplot(pdp_all, aes(x = x, y = yhat)) +
-#  geom_line(size = 1) +
-#  facet_grid(MIU_VALVE ~ variable, scales = "free_x") +
-#  theme_bw() +
-#  labs(
-#    x = "Predictor value",
-#    y = "Partial Dependence (Predicted CH4)",
-#    title = "Random Forest Partial Dependence by Chamber"
-#  )
-#
+write_csv(ch4_out, here::here("processed_data", "L2- partitioned_and_gap_filled.csv"))

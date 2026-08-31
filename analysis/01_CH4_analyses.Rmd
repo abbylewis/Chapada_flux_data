@@ -1,0 +1,1091 @@
+---
+title: "CH4 analyses"
+author: "Abby Lewis"
+date: "2026-01-20"
+output: html_document
+---
+
+## Overview
+
+This file contains code to analyze and visualize the effects of soil warming on methane emissions, including changes in the proportional contribution of extreme fluxes (i.e., top 5%, 1%, and 0.2%). Code chunks should be run in order.
+
+### Table of contents: 
+
+-   Step 1: Load data and packages
+-   Step 2: Calculate summary statistics
+-   Step 3: Plot data summary (Figure 2 and variants)
+-   Step 4: Analyze the contribution of extreme fluxes (Figure 3 and variants)
+-   Step 5: Simulate low-frequency sampling to assess bias (Figure 4)
+-   Step 6: Daytime and WL sampling biases (SI)
+-   Step 7: Analyze residuals for annual and extreme fluxes
+
+
+## Step 1: Load data and packages
+
+```{r setup}
+# Load packages and functions
+library(tidyverse)
+source("R/hm_style.R")
+source("R/plot_all_data.R")
+source("R/make_gam_label.R")
+source("R/make_lm_label.R")
+source("R/calc_bias.R")
+
+# Load data
+ch4 <- read_csv(here::here("01_Data", "GENX_flux_data_interpolated_with_drivers.csv")) %>%
+  mutate(DateTime_EST = with_tz(DateTime_EST, tz = "EST"),
+         Chamber = factor(Chamber, levels = chamber_labels),
+         date = as_date(DateTime_EST)
+  )
+
+soil_temp <- read_csv(here::here("01_Data", "Soil_temp.csv")) %>%
+  mutate(DateTime_EST = with_tz(DateTime_EST, tz = "EST"),
+         Chamber = factor(Chamber, levels = chamber_labels))
+
+smartx <- read_csv(here::here("01_Data", "SMARTX CH4 and CO2 fluxes_2016-2025.csv")) %>%
+  mutate(date = as_date(Date, format = "%m/%d/%Y"),
+         CH4_umol_m2_h = `CH4 flux (umol/m2/d)`/24)
+```
+
+
+## Step 2: Calculate summary stats
+
+```{r summary_stats}
+# Percent gapfilled
+ch4 %>%
+  mutate(filled_ch4 = ifelse(is.na(CH4_umol_m2_h_not_gapfilled) & !is.na(CH4_umol_m2_h), T, F),
+         filled_gpp = ifelse(is.na(GPP_umol_m2_h_not_gapfilled) & 
+                               !is.na(GPP_umol_m2_h) &
+                               !GPP_umol_m2_h == 0, 
+                             T, F)) %>%
+  group_by(Chamber) %>%
+  summarize(
+    pct_ch4 = round(sum(filled_ch4) / sum(!is.na(CH4_umol_m2_h)) * 100, 1),
+    pct_gpp = round(sum(filled_gpp) / sum(!is.na(GPP_umol_m2_h)) * 100, 1)
+  ) 
+
+# Number of days in analysis
+n_days <- as.numeric(difftime(max(ch4$DateTime_EST),
+  min(ch4$DateTime_EST),
+  units = "days"
+))
+```
+
+
+## Step 3: Plot data summary (Figure 2 and variants)
+
+```{r fig_2}
+# Standardize x limits
+annual_xlim <- range(
+  ch4$date[!is.na(ch4$CH4_umol_m2_h)],
+  na.rm = TRUE
+)
+
+# Set focal dates
+start_date <- as_date("2025-03-27")
+end_date   <- as_date("2025-04-06")
+start_datetime <- as_datetime(paste0(start_date, " 00:00:00"), tz = "EST")
+end_datetime <- as_datetime(paste0(end_date, " 23:59:00"), tz = "EST")
+focal_days <- seq.Date(start_date, end_date, by = "day")
+
+# Process data
+annual_ch4_df <- ch4 %>%
+  group_by(date, Chamber) %>%
+  summarize(
+    CH4_umol_m2_h = mean(CH4_umol_m2_h, na.rm = TRUE),
+    Depth_cm = mean(Depth_cm, na.rm = TRUE),
+    GPP_umol_m2_h = mean(GPP_umol_m2_h, na.rm = TRUE),
+    Reco_umol_m2_h = mean(Reco_umol_m2_h, na.rm = TRUE),
+    AirTemp_C = mean(AirTemp_C, na.rm = TRUE),
+    Salinity = mean(Salinity, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+annual_ST_df <- soil_temp %>%
+  mutate(date = as_date(DateTime_EST)) %>%
+  group_by(date, Chamber) %>%
+  summarize(
+    Temp_C = mean(SoilTemp_C, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+focal_ch4_df <- ch4 %>%
+  filter(date %in% focal_days)
+
+focal_ST_df <- soil_temp %>%
+  mutate(date = as_date(DateTime_EST)) %>%
+  filter(date %in% focal_days)
+
+# Plot annual
+annual <- make_annual_plot(
+  data = annual_ch4_df, 
+  x = "date", y = "CH4_umol_m2_h", colour = "Chamber",
+  expression(atop(CH[4] ~ "flux","(µmol" ~ m^-2 ~ h^-1 * ")"))
+)
+
+annual_ST <- make_annual_plot(
+  annual_ST_df,
+  "date", "Temp_C", "Chamber",
+  expression(atop("Soil temp.", "(ºC)")),
+  zero_line = NULL
+)
+
+annual_AT <- make_annual_plot(
+  annual_ch4_df,
+  "date", "AirTemp_C", 
+  ylabel = expression(atop("Air temp.", "(ºC)"))
+)
+
+annual_wl <- make_annual_plot(
+  annual_ch4_df,
+  "date", "Depth_cm",
+  ylabel = expression(atop("Water level", "(cm)"))
+)
+
+annual_sal <- make_annual_plot(
+  annual_ch4_df,
+  "date", "Salinity",
+  ylabel = expression(atop("Salinity", "(PPT)")),
+  zero_line = NULL
+)
+
+annual_GPP <- make_annual_plot(
+  annual_ch4_df,
+  "date", "GPP_umol_m2_h", "Chamber",
+  ylabel = expression(atop("GPP", "(µmol/m2/h)"))
+)
+
+annual_Reco <- make_annual_plot(
+  annual_ch4_df,
+  "date", "Reco_umol_m2_h", "Chamber",
+  ylabel = expression(atop("Reco", "(µmol/m2/h)"))
+)
+
+# Plot focal
+focal_ch4 <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "CH4_umol_m2_h", "Chamber",
+  expression(atop(CH[4] ~ "flux","(µmol" ~ m^-2 ~ h^-1 * ")"))
+)
+
+focal_ST <- make_focal_plot(
+  focal_ST_df,
+  "DateTime_EST", "SoilTemp_C", "Chamber",
+  expression(atop("Soil temp.", "(ºC)")),
+  zero_line = NULL
+)
+
+focal_AT <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "AirTemp_C",
+  ylabel = expression(atop("Air temp.", "(ºC)")),
+  zero_line = NULL
+)
+
+focal_wl <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "Depth_cm",
+  ylabel = expression(atop("Water level", "(cm)"))
+)
+
+focal_GPP <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "GPP_umol_m2_h", "Chamber",
+  ylabel = expression(atop("GPP", "(µmol/m2/h)"))
+)
+
+focal_Reco <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "Reco_umol_m2_h", "Chamber",
+  ylabel = expression(atop("Reco", "(µmol/m2/h)"))
+)
+
+focal_sal <- make_focal_plot(
+  focal_ch4_df,
+  "DateTime_EST", "Salinity",
+  ylabel = expression(atop("Salinity", "(PPT)")),
+  zero_line = NULL
+)
+
+# Combine annual
+annual_panel <- patchwork::wrap_plots(
+  annual +
+    ggtitle("Seasonal variability (daily mean)") +
+    guides(color = guide_legend(ncol = 4)) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "bottom"),
+
+  annual_ST + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_wl + panel_theme + theme(legend.position = "none"),
+
+  ncol = 1,
+  design = "
+    A
+    A
+    B
+    C
+  "
+)
+
+# Combine focal
+focal_panel <- patchwork::wrap_plots(
+  focal_ch4 +
+    ggtitle("Short-term variability") +
+    guides(color = guide_legend(ncol = 4)) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "bottom"),
+
+  focal_ST + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_wl + panel_theme + theme(legend.position = "none"),
+
+  ncol = 1,
+  design = "
+    A
+    A
+    B
+    C
+  "
+)
+
+# Combine both
+comb <- patchwork::wrap_plots(
+  annual_panel,
+  focal_panel,
+  ncol = 2,
+  widths = c(2, 1),
+  guides = "collect"
+) +
+  patchwork::plot_annotation(
+    tag_levels = list(c("a", "","","b")),
+    theme = theme(
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.title.position = "top"
+    )
+  ) &
+  theme(
+    plot.tag = element_text(face = "bold")
+  )
+comb
+
+ggsave(plot = comb, "../03_Figures/Manuscript/Figure 2 - Data drivers.jpg", dpi = 300, width = 7, height = 5)
+
+# Make a smaller version for presentations
+patchwork::wrap_plots(
+  make_annual_plot(
+    data = annual_ch4_df, 
+    x = "date", y = "CH4_umol_m2_h", colour = "Chamber",
+    expression(atop(CH[4] ~ "flux","(µmol" ~ m^-2 ~ h^-1 * ")")),
+    annotate = F
+  ) +
+    ggtitle("Seasonal variability (daily mean)") +
+    guides(color = guide_legend(ncol = 4)) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "bottom"),
+  
+  make_annual_plot(
+    annual_ST_df,
+    "date", "Temp_C", "Chamber",
+    expression(atop("Soil temp.", "(ºC)")),
+    zero_line = NULL, annotate = F
+  ) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "none"),
+  
+  ncol = 1, design = c("A
+                        A
+                        B")
+) +
+  patchwork::plot_layout(guides = "collect") +
+  patchwork::plot_annotation(
+    tag_levels = list(c("a", "", "", "b")),
+    theme = theme(
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.title.position = "top"
+    )
+  ) &
+  theme(plot.tag = element_text(face = "bold"))
+
+ggsave("../03_Figures/Presentation/Figure 2 - Data drivers pres.jpg", dpi = 300, width = 7, height = 5)
+
+# Make an even smaller version for presentations
+ch4 %>%
+  filter(Chamber == "Ch. 12 (+5.7 ºC)") %>%
+  ggplot(aes(x = DateTime_EST, y = CH4_umol_m2_h)) +
+  geom_line()+
+  xlab("Date")+
+  guides(color = guide_legend(ncol = 4)) +
+  theme_hm +
+  theme(legend.position = "none",
+        axis.title.y = element_blank()) +
+  scale_x_datetime(
+    date_breaks = "1 month",
+    date_labels = "%b"
+  )
+
+ggsave("../03_Figures/Presentation/Figure 2 - Data pres tiny.jpg", dpi = 300, width = 4, height = 3)
+
+# Make an even smaller version for grants
+grant <- ch4 %>%
+  filter(Chamber == "Ch. 8 (+3.3 ºC)",
+         DateTime_EST >= "2025-10-01",
+         DateTime_EST < "2025-11-01") %>%
+  ggplot(aes(x = DateTime_EST, y = CH4_umol_m2_h)) +
+  geom_line()+
+  guides(color = guide_legend(ncol = 4)) +
+  theme_hm +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())+
+  scale_x_datetime(
+    breaks = as_datetime(c("2025-10-01 00:00:00", "2025-10-15 00:00:00", "2025-11-01 00:00:00")),
+    labels = c("Oct 1", "Oct 15", "Nov 1")
+  )
+
+#Ch8 month 9
+
+ggsave(plot = grant, "../03_Figures/Presentation/Figure 2 - Data pres tiny (grant).jpg", dpi = 300, width = 2, height = 1)
+
+# Make an expanded version for the SI
+annual_panel <- patchwork::wrap_plots(
+  annual +
+    ggtitle("Seasonal variability (daily mean)") +
+    guides(color = guide_legend(ncol = 4)) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "bottom"),
+
+  annual_ST + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_AT + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_GPP + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_Reco + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_wl + top_theme + panel_theme + theme(legend.position = "none"),
+  annual_sal + panel_theme + theme(legend.position = "none"),
+
+  ncol = 1,
+  design = "
+    A
+    A
+    B
+    C
+    D
+    E
+    F
+    G
+  "
+)
+
+# Combine focal
+focal_panel <- patchwork::wrap_plots(
+  focal_ch4 +
+    ggtitle("Short-term variability") +
+    guides(color = guide_legend(ncol = 4)) +
+    top_theme +
+    panel_theme +
+    theme(legend.position = "bottom"),
+
+  focal_ST + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_AT + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_GPP + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_Reco + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_wl + top_theme + panel_theme + theme(legend.position = "none"),
+  focal_sal + panel_theme + theme(legend.position = "none"),
+
+  ncol = 1,
+  design = "
+    A
+    A
+    B
+    C
+    D
+    E
+    F
+    G
+  "
+)
+
+# Combine both
+comb <- patchwork::wrap_plots(
+  annual_panel,
+  focal_panel,
+  ncol = 2,
+  widths = c(2, 1),
+  guides = "collect"
+) +
+  patchwork::plot_annotation(
+    tag_levels = list(c("a", "","","","","","","b")),
+    theme = theme(
+      legend.position = "bottom",
+      legend.justification = "left",
+      legend.title.position = "top"
+    )
+  ) &
+  theme(
+    plot.tag = element_text(face = "bold")
+  )
+comb
+
+ggsave("../03_Figures/SI/SI - Data drivers expanded.jpg", dpi = 300, width = 7, height = 10)
+
+ch4 %>%
+  mutate(DateTime_EST = as.POSIXct(DateTime_EST)) %>%
+  ggplot(aes(x = DateTime_EST, y = CH4_umol_m2_h)) +
+  scale_x_datetime(
+    date_breaks = "1 month",
+    date_labels = "%b"
+  ) +
+  theme_hm +
+  theme(
+    axis.title.x = element_blank()
+  ) +
+  labs(y = expression(atop(CH[4] ~ "flux","(µmol" ~ m^-2 ~ h^-1 * ")"))) +
+  geom_hline(
+    yintercept = 0,
+    color = "grey50"
+  ) +
+  geom_line(
+    aes(color = Chamber),
+    linewidth = 0.5
+  ) +
+  scale_color_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  geom_point(data = smartx %>%
+               filter(!substr(Plot, 1,1) == "6",
+                      year(date) == 2025,
+                      month(date) > 3) %>%
+               mutate(DateTime_EST = as.POSIXct(as_datetime(paste0(date, " 00:00:00")))),
+             size = 2)
+
+ggsave("../03_Figures/Presentation/Figure 2 - SMARTX comparison.jpg", 
+       dpi = 300, width = 5.5, height = 3)
+```
+
+
+## Step 4: Analyze the contribution of extreme fluxes (Figure 3 and variants)
+
+```{r fig_3}
+# Only use days that have data from all 12 chambers
+hm_df <- ch4 %>%
+  filter(!is.na(CH4_umol_m2_h)) %>%
+  group_by(date) %>%
+  filter(length(unique(Chamber)) == 12)
+
+# Calculate the contribution of extreme fluxes
+hot_moments <- hm_df %>%
+  group_by(Chamber) %>%
+  # Identify whether fluxes exceed each threshold
+  mutate(
+    hot_moment_quant_998 = ifelse(CH4_umol_m2_h >=
+      quantile(CH4_umol_m2_h,
+        probs = 0.998, na.rm = TRUE
+      ),
+    "hot", "not"
+    ),
+    hot_moment_quant_99 = ifelse(CH4_umol_m2_h >=
+      quantile(CH4_umol_m2_h,
+        probs = 0.99, na.rm = TRUE
+      ),
+    "hot", "not"
+    ),
+    hot_moment_quant_95 = ifelse(CH4_umol_m2_h >=
+      quantile(CH4_umol_m2_h,
+        probs = 0.95, na.rm = TRUE
+      ),
+    "hot", "not"
+    )
+  ) %>%
+  # Calculate sum of fluxes that exceed each threshold
+  # and convert to growing season total (mol/m2/y from umol/m2/h)
+  summarize(
+    n = sum(!is.na(CH4_umol_m2_h)),
+    annual_flux = sum(CH4_umol_m2_h, na.rm = T) /
+      n / 1000 / 1000 * (n_days * 24),
+    hot_sum_998 = sum(CH4_umol_m2_h[hot_moment_quant_998 == "hot"], na.rm = T) /
+      n / 1000 / 1000 * (n_days * 24),
+    hot_sum_99 = sum(CH4_umol_m2_h[hot_moment_quant_99 == "hot"], na.rm = T) /
+      n / 1000 / 1000 * (n_days * 24),
+    hot_sum_95 = sum(CH4_umol_m2_h[hot_moment_quant_95 == "hot"], na.rm = T) /
+      n / 1000 / 1000 * (n_days * 24),
+    min = min(DateTime_EST),
+    max = max(DateTime_EST)
+  ) %>%
+  mutate( # Add temperature treatment
+    Temp_C = sub(" ºC", "", str_extract(as.character(Chamber), "-*[0-9]+\\.*[0-9]* ºC")),
+    Temp_C = as.numeric(sub("mb", "0", Temp_C))
+  )
+
+write_csv(hot_moments %>%
+            select(Chamber,
+                   annual_flux,
+                   hot_sum_99
+                   ), 
+          "annual_totals.csv") #Used in a wavelet fig
+
+# Generate panel labels
+annual_label <- make_gam_label(
+  data = hot_moments,
+  xvar = "Temp_C",
+  yvar = "annual_flux"
+)
+
+# Plot overall growing season totals
+annual <- hot_moments %>%
+  ggplot(aes(x = Temp_C, y = annual_flux)) +
+  geom_smooth(method = "gam",
+              formula = y ~ s(x, k = 3),
+              method.args = list(method = "REML"),
+              color = "black") +
+  geom_point(aes(fill = Chamber),
+    color = "black", shape = 21,
+    stroke = 0.5, size = 2
+  ) +
+  geom_text(
+    aes(x = -Inf, y = Inf, label = annual_label$label),
+    hjust = 0, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 2.5, data = data.frame()
+  ) +
+  scale_fill_manual(values = color.gradient, name = "Chamber") +
+  theme_hm +
+  ylab(expression(atop("Growing season", "emissions (mol" ~ m^-2 ~ yr^-1 * ")"))) +
+  xlab("Temperature treatment (ºC above ambient)") +
+  theme(
+    legend.position = "bottom",
+    legend.title.position = "top"
+  ) +
+  guides(fill = guide_legend(ncol = 2))
+
+# Calculate summary stats about the contribution of extreme events
+top_pct <- hot_moments %>%
+  mutate(
+    hm_pct_998 = hot_sum_998 / annual_flux * 100,
+    hm_pct_99 = hot_sum_99 / annual_flux * 100,
+    hm_pct_95 = hot_sum_95 / annual_flux * 100
+  ) %>%
+  select(Temp_C, Chamber, hm_pct_998, hm_pct_99, hm_pct_95) %>%
+  pivot_longer(c(hm_pct_95, hm_pct_99, hm_pct_998)) %>%
+  mutate(
+    name = factor(
+      name,
+      levels = c("hm_pct_95", "hm_pct_99", "hm_pct_998"),
+      labels = c(
+        "Top 5% of measurements",
+        "Top 1% of measurements",
+        "Top 0.2% of measurements"
+      )
+    )
+  ) %>%
+  group_by(name) %>%
+  mutate(
+    model = list(
+      mgcv::gam(
+        value ~ s(Temp_C, k = 3),
+        data = cur_data(),
+        method = "REML"
+      )
+    ),
+    p      = summary(model[[1]])$s.pv,
+    r2     = summary(model[[1]])$r.sq,
+    median = median(value)
+  ) %>%
+  ungroup()
+
+# Format summary stats for plot
+label_df <- top_pct %>%
+  group_by(name) %>%
+  summarise(
+    p = first(p),
+    r2 = first(r2),
+    median = first(median),
+    label = paste0(
+      "  Median = ", round(median, 1), " %",
+      "\n  R² = ", round(r2, 2),
+      "\n  p = ", round(p, 3)
+    )
+  )
+
+# Plot the contribution of extreme events to total emissions
+top_pct_fig <- top_pct %>%
+  ggplot(aes(x = Temp_C, y = value)) +
+  geom_smooth(
+    method = "gam",
+    formula = y ~ s(x, k = 3),
+    method.args = list(method = "REML"),
+    color = "black",
+    data = ~ subset(.x, p < 0.05)
+  ) +
+  geom_point(aes(fill = Chamber),
+    color = "black", shape = 21,
+    stroke = 0.5, size = 2
+  ) +
+  geom_text(
+    data = label_df,
+    aes(x = -Inf, y = Inf, label = label),
+    hjust = 0, vjust = 1.2,
+    inherit.aes = FALSE, size = 2.5
+  ) +
+  scale_fill_manual(values = color.gradient, name = "Chamber") +
+  theme_hm +
+  ylab(expression(atop("Percent of growing season", "emissions"))) +
+  xlab("Temperature treatment (ºC above ambient)") +
+  guides(fill = guide_legend(ncol = 4)) +
+  facet_wrap(~name, scales = "free_y")
+
+# Combine growing season sums with extreme events
+comb <- ggpubr::ggarrange(annual + theme(legend.position = "right"),
+  top_pct_fig + theme(legend.position = "none"),
+  nrow = 2, ncol = 1,
+  labels = "auto"
+)
+
+# Save
+ggsave(
+  comb,
+  filename = "../03_Figures/Manuscript/Figure 3 - Top percent.jpg",
+  dpi = 300, width = 6, height = 5
+)
+
+# Format 1% panel for presentations
+top_pct_pres <- top_pct %>%
+  filter(name == "Top 1% of measurements") %>%
+  ggplot(aes(x = Temp_C, y = value)) +
+  geom_smooth(
+    method = "gam",
+    formula = y ~ s(x, k = 3),
+    method.args = list(method = "REML"),
+    color = "black",
+    data = ~ subset(.x, p < 0.05)
+  ) +
+  geom_point(aes(fill = Chamber),
+    color = "black", shape = 21,
+    stroke = 0.5, size = 2
+  ) +
+  geom_text(
+    data = label_df %>%
+      filter(name == "Top 1% of measurements"),
+    aes(x = -Inf, y = Inf, label = label),
+    hjust = 0, vjust = 1.5,
+    inherit.aes = FALSE, size = 4
+  ) +
+  scale_fill_manual(values = color.gradient, name = "Chamber") +
+  theme_hm +
+  ylab(expression(atop("Top 1% of fluxes", "(% of growing season emissions)"))) +
+  xlab("Temperature treatment (ºC above ambient)") +
+  guides(fill = guide_legend(ncol = 3))
+
+# Save presentation version
+ggsave(
+  top_pct_pres,
+  filename = "../03_Figures/Presentation/Figure 3 - Top percent pres.jpg",
+  dpi = 300, width = 4, height = 5
+)
+
+# Format growing season total and 1% panel for presentations
+comb_pres <- patchwork::wrap_plots(
+  annual + guides(fill = guide_legend(ncol = 3)),
+  top_pct_pres,
+  nrow = 1, ncol = 2,
+  guides = "collect", axes = "collect_x"
+) &
+  theme(legend.position = "bottom")
+
+ggsave(
+  comb_pres,
+  filename = "../03_Figures/Presentation/Figure 3 - Top percent pres comb.jpg",
+  dpi = 300, width = 8, height = 4
+)
+```
+
+
+## Step 5: Simulate low-frequency sampling to assess bias (Figure 4)
+
+```{r fig_4}
+# Set simulation specs
+reps <- 10000
+set.seed(4700)
+intervals <- c("daily", "twice weekly", "weekly", "fortnightly", "monthly")
+
+# Add labels for day, month, week, and fortnight
+df <- ch4 %>%
+  mutate(
+    day = yday(date),
+    month = month(date),
+    week = week(date),
+    fortnight = week %/% 2
+  )
+
+# Run simulations
+df_out <- purrr::map(intervals, calc_bias) %>% # See calc_bias.R
+  bind_rows()
+
+# Summarize outputs
+to_plot <- df_out %>%
+  group_by(Chamber, rep, interval, time) %>%
+  summarize(
+    mean_hourly = sum(flux * n / sum(n), na.rm = TRUE),
+    tot_hourly = mean_hourly / 1e6 * (n_days * 24), # Growing season total (simulated)
+    .groups = "drop"
+  ) %>%
+  left_join(
+    hot_moments %>% rename(tot_real = annual_flux), # Add totals (calculated high-frequency)
+    by = "Chamber"
+  ) %>%
+  mutate(percent_bias = tot_hourly / tot_real * 100 - 100)
+
+# Calculate medians
+to_plot_median <- to_plot %>%
+  group_by(Chamber, interval, time, Temp_C) %>%
+  summarize(
+    median_bias = median(percent_bias, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot medians by time interval
+sims_full_day <- to_plot_median %>%
+  filter(time == "all") %>%
+  mutate(
+    interval = factor(interval, levels = intervals),
+    int_num = as.numeric(interval)
+  ) %>%
+  ggplot(aes(color = Chamber, x = int_num, y = median_bias)) +
+  geom_hline(yintercept = 0, color = "grey85") +
+  geom_line(size = 0.5) +
+  geom_point(aes(fill = Chamber), shape = 21, size = 2, stroke = 0.5) +
+  scale_x_continuous(
+    breaks = 1:length(intervals),
+    labels = intervals
+  ) +
+  scale_fill_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  scale_color_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  theme_hm +
+  theme(legend.title.position = "top") +
+  ylab("Manual sampling bias (%)") +
+  xlab("Simulated sampling interval") +
+  guides(fill = guide_legend(ncol = 2)) +
+  theme(axis.text.x = element_text(
+    hjust = 1,
+    angle = 45
+  ))
+
+# Plot monthly medians by temperature
+# First, calculate statistics for plot
+sims_label <- make_gam_label(
+  data = to_plot_median %>%
+    filter(
+      interval == "monthly",
+      time == "all"
+    ),
+  xvar = "Temp_C",
+  yvar = "median_bias"
+)
+
+# Generate plot
+sims_month <- to_plot_median %>%
+  filter(
+    interval == "monthly",
+    time == "all"
+  ) %>%
+  ggplot(aes(x = as.numeric(Temp_C), y = median_bias, group = "group")) +
+  geom_hline(yintercept = 0, color = "grey85") +
+  geom_smooth(method = "gam",
+              formula = y ~ s(x, k = 3),
+              method.args = list(method = "REML"),
+              color = "black") +
+  geom_point(aes(fill = Chamber), shape = 21, size = 2, stroke = 0.5) +
+  geom_text(
+    data = sims_label,
+    aes(x = -Inf, y = -Inf, label = label),
+    hjust = 0, vjust = -0.5,
+    inherit.aes = FALSE, size = 2.5
+  ) +
+  scale_x_continuous(
+    limits = c(-0.5, 6.5),
+    expand = c(0, 0)
+  ) +
+  scale_fill_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  theme_hm +
+  theme(legend.title.position = "top") +
+  ylab("Manual sampling bias (%)") +
+  xlab("Temperature treatment (ºC above ambient)") +
+  guides(fill = guide_legend(ncol = 2))
+
+# Plot full distribution
+sims_dist <- to_plot %>%
+  filter(
+    interval == "monthly",
+    time == "all"
+  ) %>%
+  ggplot(aes(x = as.numeric(Temp_C), y = percent_bias)) +
+  geom_hline(yintercept = 0, color = "grey85") +
+  # Without quantiles for shading
+  geom_violin(aes(color = Chamber, fill = Chamber),
+    position = "identity", alpha = 0.1, width = 0.5
+  ) +
+  # With 25 and 75%
+  geom_violin(aes(color = Chamber), fill = NA,
+    quantiles = c(0.25, 0.75), quantile.linetype = "11",
+    position = "identity", width = 0.5
+  ) +
+  # With median
+  geom_violin(aes(color = Chamber), fill = NA,
+    quantiles = c(0.5), quantile.linetype = "solid",
+    position = "identity", width = 0.5
+  ) +
+  scale_fill_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  scale_color_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  theme_hm +
+  scale_x_continuous(
+    limits = c(-0.5, 6.5),
+    expand = c(0, 0)
+  ) +
+  theme(legend.title.position = "top") +
+  ylab("Manual sampling bias (%)") +
+  xlab("Temperature treatment (ºC above ambient)") +
+  guides(fill = guide_legend(ncol = 2))
+
+# Combine plots
+with_dist2 <- patchwork::wrap_plots(
+  a = sims_month +
+    guides(fill = guide_legend(ncol = 1)) +
+    ylab("Monthly sampling bias\n(median %)") +
+    xlab("Temperature treatment (ºC above ambient)"),
+  b = sims_dist + theme(legend.position = "none") +
+    ylab("Monthly sampling bias (%)"),
+  c = sims_full_day +
+    ylab("Sampling bias\n(median %)") +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(hjust = 0.5, angle = 0)
+    ),
+  d = patchwork::guide_area(),
+  guides = "collect",
+  axes = "collect_x",
+  design = c("AAABBB
+              AAABBB
+              AAABBB
+              CCCCDD
+              CCCCDD")
+) +
+  patchwork::plot_annotation(
+    tag_levels = "a"
+  ) &
+  theme(plot.tag = element_text(face = "bold"))
+
+# Visualize and save
+with_dist2
+ggsave(with_dist2,
+  filename = "../03_Figures/Manuscript/Figure 4 - Simulations all.jpg",
+  dpi = 300, width = 6, height = 5
+)
+```
+
+
+## Step 6: Daytime and WL sampling biases (SI)
+
+```{r fig_4}
+# Set simulation specs
+reps <- 10000
+set.seed(4700)
+intervals <- c("monthly")
+
+# Add labels for day, month, week, and fortnight
+df <- ch4 %>%
+  mutate(
+    day = yday(date),
+    month = month(date),
+    week = week(date),
+    fortnight = week %/% 2,
+    DateTime_local = with_tz(DateTime_EST, tzone = "America/New_York"))
+
+# Run simulations
+df_out <- calc_bias("monthly", only_time = F) %>% # See calc_bias.R
+  bind_rows()
+
+# Summarize outputs
+to_plot <- df_out %>%
+  group_by(Chamber, rep, interval, time) %>%
+  summarize(
+    mean_hourly = sum(flux * n / sum(n), na.rm = TRUE),
+    tot_hourly = mean_hourly / 1e6 * (n_days * 24), # Growing season total (simulated)
+    .groups = "drop"
+  ) %>%
+  left_join(
+    hot_moments %>% rename(tot_real = annual_flux), # Add totals (calculated high-frequency)
+    by = "Chamber"
+  ) %>%
+  mutate(percent_bias = tot_hourly / tot_real * 100 - 100)
+
+# Calculate medians
+to_plot_median <- to_plot %>%
+  group_by(Chamber, interval, time, Temp_C) %>%
+  summarize(
+    median_bias = median(percent_bias, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Stats
+to_plot_median %>%
+  group_by(interval, time) %>%
+  summarize(median = median(median_bias))
+
+# Plot medians by time interval
+sims_multiple_biases <- to_plot_median %>%
+  mutate(
+    time = factor(time, 
+                  levels = c("all", "daytime", "waterlevel"),
+                  labels = c("Fully random\nsampling times", 
+                             "Only daytime\nsampling", 
+                             "Only sampling\nwhen water level\nis at or below the\nmarsh surface")),
+  ) %>%
+  ggplot(aes(x = time, y = median_bias)) +
+  geom_hline(yintercept = 0, color = "grey85") +
+  geom_boxplot(outlier.shape = NA)+
+  geom_jitter(aes(fill = Chamber), shape = 21, size = 2, stroke = 0.5, width = 0.2) +
+  scale_fill_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  scale_color_manual(
+    values = color.gradient,
+    name = "Chamber"
+  ) +
+  coord_cartesian(xlim = c(0.5, 3.5), expand = c(left = F, right = F))+
+  theme_hm +
+  theme(legend.title.position = "top") +
+  ylab("Bias of monthly sampling (%)") +
+  xlab("Simulated sampling bias") +
+  guides(fill = guide_legend(ncol = 2)) +
+  theme(axis.title.x = element_blank(),
+        legend.box.margin = margin(t = -25))
+
+sims_multiple_biases
+
+ggsave(sims_multiple_biases,
+  filename = "../03_Figures/SI/SI - Multiple biases.jpg",
+  dpi = 300, width = 3.5, height = 4
+)
+```
+
+
+## Step 7: Analyze residuals for annual and extreme fluxes
+
+```{r resids}
+# Load driver data
+rtk <- read_csv(here::here("01_Data", "Chamber_elevation.csv")) %>%
+  select(-Latitude_DD, -Longitude_DD) %>%
+  mutate(Type = "") %>%
+  pivot_longer(-c(Chamber, Type))
+agb <- read_csv(here::here("01_Data", "Aboveground_biomass.csv"),
+  show_col_types = F
+) %>%
+  mutate(Type = "Aboveground~biomass~(g/m^2)") %>%
+  pivot_longer(-c(Chamber, Type))
+stems <- read_csv(here::here("01_Data", "SCAM_Stem_measurements.csv")) %>%
+  mutate(Type = "italic('S. americanus')~stem~traits") %>%
+  pivot_longer(-c(Chamber, Type)) %>%
+  group_by(Chamber, Type, name) %>%
+  summarize(value = median(value))
+counts <- read_csv(here::here("01_Data", "SCAM_Stem_counts.csv")) %>%
+  mutate(Type = "italic('S. americanus')~stem~traits") %>%
+  pivot_longer(-c(Chamber, Type))
+
+# Combine and format drivers
+drivers <- rtk %>%
+  bind_rows(agb) %>%
+  bind_rows(stems) %>%
+  bind_rows(counts) %>%
+  mutate(name = case_match(
+    name,
+    "Elev_m" ~ "Elevation~(m)",
+    "SCAM_g_m2" ~ "C[3]",
+    "TotalC4_g_m2" ~ "C[4]",
+    "TotalAboveground_g_m2" ~ "Total",
+    "SCAM_Height_cm" ~ "Height~(cm)",
+    "SCAM_Width_mm" ~ "Width~(mm)",
+    "SCAM_Stem_count" ~ "Count"
+  ))
+
+# Calculate residuals
+resids <- hot_moments %>%
+  mutate(
+    hm_pct_998 = hot_sum_998 / annual_flux * 100,
+    hm_pct_99 = hot_sum_99 / annual_flux * 100,
+    hm_pct_95 = hot_sum_95 / annual_flux * 100
+  ) %>%
+  select(Chamber, Temp_C, hm_pct_998, hm_pct_99, hm_pct_95, annual_flux) %>%
+  pivot_longer(-c(Chamber, Temp_C), names_to = "HM_variable") %>%
+  group_by(HM_variable) %>%
+  mutate(resid = mgcv::gam(value ~ s(Temp_C, k = 3))$residuals) %>%
+  mutate(HM_variable = replace_values(
+    HM_variable,
+    "hm_pct_99" ~ "'Top 1%'",
+    "hm_pct_998" ~ "'Top 0.2%'",
+    "hm_pct_95" ~ "'Top 5%'",
+    "annual_flux" ~ "Total"
+  )) %>%
+  select(-value)
+
+for_plot <- resids %>%
+  left_join(drivers, relationship = "many-to-many") %>%
+  mutate(Chamber = factor(Chamber, levels = chamber_labels))
+
+# Generate labels
+labs <- make_lm_label(for_plot, "value", "resid",
+  group_var = "HM_variable", group_var2 = "name"
+) %>%
+  left_join(for_plot %>%
+    select(name, Type) %>%
+    distinct())
+
+# Plot
+pollock <- for_plot %>%
+  ggplot(aes(x = value, y = resid)) +
+  geom_point(aes(color = Chamber)) +
+  theme_hm +
+  scale_color_manual(values = color.gradient, name = "Chamber") +
+  xlab("value") +
+  ylab("Residual") +
+  geom_text(
+    aes(x = x_pos, y = y_pos, label = label_simple),
+    hjust = 0, vjust = 1.1,
+    inherit.aes = FALSE,
+    size = 3, data = labs, parse = T
+  ) +
+  ggh4x::facet_nested("Methane~flux~metric" + HM_variable ~ Type + name,
+    scales = "free", switch = "x",
+    labeller = label_parsed,
+    nest_line = element_line(linewidth = 0.2)
+  ) +
+  theme(
+    strip.placement = "outside",
+    axis.title.x = element_blank()
+  )
+
+# Save
+ggsave(pollock,
+  file = here::here("03_Figures", "SI", "SI - HM_residuals.jpg"),
+  width = 10, height = 5
+)
+```

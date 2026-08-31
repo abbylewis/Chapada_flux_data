@@ -1,0 +1,413 @@
+---
+title: "Wavelet analysis"
+author: "Abby Lewis"
+date: "2024-08-22"
+output: html_document
+---
+
+## Overview
+
+This file contains code to run wavelet analyses and assess the effect of warming on each scale of wavelet variability. Code chunks should be run in order.
+
+### Table of contents:
+
+-   Step 1: Load data and packages
+-   Step 2: Run wavelet analysis
+-   Step 3: Plot variance by temperature (Figure 5)
+-   Step 4: Visualize reconstructed wavelet outputs (SI)
+-   Step 5: Assess Spearman correlation with drivers (Figure 6)
+-   Step 6: Analyze residuals for each scale of variability (SI)
+
+
+## Step 1: Load data and packages
+
+```{r setup}
+# Load packages
+library(tidyverse)
+library(data.table)
+library(waveslim)
+library(DescTools)
+source("R/wavelet_functions.R")
+source("R/make_gam_label.R")
+source("R/make_lm_label.R")
+source("R/hm_style.R")
+
+# Load data
+ch4 <- read_csv(here::here("processed_data", "L2- partitioned_and_gap_filled.csv")) %>%
+  mutate(DateTime_EST = with_tz(DateTime_EST, tz = "EST")) %>%
+  mutate(Chamber = paste0(location, Fluxing_Chamber))
+
+ch4_sums <- ch4 %>%
+  mutate(Chamber = paste0(location, Fluxing_Chamber))%>%
+  group_by(Chamber) %>%
+  summarize(median = median(CH4_umol_m2_h, na.rm = T))
+
+chamber_labels = unique(ch4$Chamber)
+```
+
+
+## Step 2: Run wavelet analysis
+
+```{r run_wavelets}
+# SPECIFICATIONS
+# Choose drivers
+drivers <- c(
+  "AirTemp_C",
+  "GPP_umol_m2_h",
+  "Reco_umol_m2_h", 
+  "SlrFD_W_Avg"
+)
+
+# Set how drivers should be referenced in plots
+driver_labels <- c(
+  AirTemp_C = "Air temperature",
+  GPP_umol_m2_h = "GPP",
+  GPP_unfilled = "GPP",
+  Reco_umol_m2_h = "Reco",
+  SlrFD_W_Avg = "Solar radiation"
+)
+
+# Set driver colors
+driver_colors <- c(
+  AirTemp_C = "#ff8b85",
+  GPP_umol_m2_h = "#3BAA5D",
+  GPP_unfilled = "#3BAA5D",
+  Reco_umol_m2_h = "#264653",
+  SlrFD_W_Avg = "gold"
+)
+
+# Run separate wavelet analyses across all treatments and sites
+dfs <- map(
+  c("CH4_umol_m2_h", "CO2_umol_m2_h", drivers),
+  ~ double_map(
+    treatment = unique(ch4$Chamber),
+    ch4 = ch4,
+    var_name = .x,
+    timestep_s = 6750
+  )
+) %>%
+  bind_rows()
+
+# Re-introduce NAs
+nas_to_add <- ch4 %>%
+  mutate(
+    na_ch4 = ifelse(is.na(CH4_umol_m2_h_not_gapfilled), T, F),
+    na_co2 = ifelse(is.na(CO2_umol_m2_h_not_gapfilled), T, F),
+    na_gpp = ifelse(is.na(GPP_umol_m2_h_not_gapfilled), T, F)
+  ) %>%
+  select(DateTime_EST, Chamber, na_ch4, na_gpp, na_co2) %>%
+  distinct()
+
+# Group wavelet scales into interpretable bins
+grouped_dfs <- dfs %>%
+  mutate(
+    name = as.character(name),
+    num_value = as.numeric(gsub("[^0-9]", "", name)),
+    grouped_scale = case_when(
+      grepl("days", name) & num_value < 30 ~ "Weekly",
+      grepl("hours", name) & num_value < 10 ~ "Hourly",
+      grepl("hours", name) & num_value >= 10 ~ "Daily",
+      TRUE ~ "Seasonal"
+    )
+  ) %>%
+  select(-num_value) %>%
+  group_by(grouped_scale, Chamber, DateTime_EST, var_name) %>%
+  summarize(
+    value = sum(value, na.rm = T),
+    reconstructed = sum(reconstructed, na.rm = T),
+    .groups = "drop"
+  )
+
+# Make a wider version
+discrete_scales <- grouped_dfs %>%
+  pivot_wider(names_from = var_name, values_from = c(value, reconstructed)) %>%
+  rename_with(~ gsub("value_", "", .x)) %>%
+  left_join(nas_to_add) %>%
+  mutate(
+    CH4_unfilled = ifelse(na_ch4, NA, CH4_umol_m2_h),
+    CO2_unfilled = ifelse(na_co2, NA, CO2_umol_m2_h),
+    GPP_unfilled = ifelse(na_gpp, NA, GPP_umol_m2_h),
+    Chamber = factor(Chamber,
+      levels = chamber_labels
+    ),
+    grouped_scale = factor(grouped_scale,
+      levels = c("Hourly", "Daily", "Weekly", "Seasonal")
+    )
+  ) %>%
+  select(-na_ch4, -na_gpp, -na_co2)
+
+# Separate explanatory variables
+discrete_scales_exp <- discrete_scales %>%
+  dplyr::select(-matches("CO2_unfilled|CO2_umol_m2_h|CH4_unfilled|CH4_umol_m2_h|GPP_unfilled|recon")) %>%
+  pivot_longer(
+    cols = -c(grouped_scale, Chamber, DateTime_EST),
+    names_to = "exp_var", values_to = "exp_var_value"
+  ) %>%
+  filter(!is.na(exp_var_value)) %>%
+  rename(grouped_scale_exp = grouped_scale)
+```
+
+
+## Step 3: Plot variance by temperature (Figure 5)
+
+```{r plot_variance}
+# Calculate the total variance at each scale (CH4)
+grouped_pct_var <- grouped_dfs %>%
+  filter(var_name %in% c("CH4_umol_m2_h", "CO2_umol_m2_h")) %>%
+  group_by(grouped_scale, Chamber, var_name) %>%
+  summarize(
+    var = var(value, na.rm = T),
+    .groups = "drop"
+  ) %>%
+  group_by(Chamber, var_name) %>%
+  mutate(tot_var = sum(var, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(
+    Chamber = factor(Chamber,
+      levels = chamber_labels
+    ),
+    grouped_scale = factor(grouped_scale,
+      levels = c("Hourly", "Daily", "Weekly", "Seasonal")
+    )
+  )
+
+grouped_pct_var %>%
+  mutate(location = sub("[0-9]+", "", Chamber),
+         ch_n = sub("[a-z]+", "", Chamber),
+         grouped_scale = factor(grouped_scale,
+      levels = levels(grouped_scale)
+    )
+         ) %>%
+  ggplot(aes(x = grouped_scale, y = var/tot_var, group = ch_n, color = ch_n))+
+  geom_line()+
+  ylab("Proportion of total variance")+
+  facet_grid(var_name~location)+
+  scale_color_manual(values = color.gradient, name = "Chamber")+
+  theme_hm
+```
+
+
+## Step 5: Assess Spearman correlation with drivers (Figure 6)
+
+```{r cors}
+# Calculate correlations
+spearman_corrs <- discrete_scales %>%
+  dplyr::select(c(grouped_scale, Chamber, DateTime_EST,
+                  CH4_umol_m2_h, CO2_umol_m2_h)) %>%
+  pivot_longer(c(CH4_umol_m2_h, CO2_umol_m2_h), 
+               names_to = "response_var", 
+               values_to = "response_var_value") %>%
+  left_join(discrete_scales_exp, relationship = "many-to-many") %>%
+  filter(
+    !is.na(exp_var_value),
+    !is.na(response_var_value)
+  ) %>%
+  group_by(Chamber, grouped_scale, exp_var, grouped_scale_exp, response_var) %>%
+  summarize(
+    spearman_rho = cor(exp_var_value, response_var_value,
+      method = "spearman",
+      use = "complete.obs"
+    ),
+    spearman_rho2 = spearman_rho^2,
+    abs_rho = abs(spearman_rho),
+    .groups = "drop"
+  ) %>%
+  filter(
+    grouped_scale == grouped_scale_exp
+  )
+
+# Plot correlations
+spear <- spearman_corrs %>%
+  mutate(location = sub("[0-9]+", "", Chamber)) %>%
+  ggplot(aes(
+    x = grouped_scale,
+    y = spearman_rho,
+    color = exp_var,
+    group = exp_var
+  )) +
+  geom_hline(color = "grey50", yintercept = 0) +
+  geom_line(alpha = 0.1, aes(group = paste0(Chamber, exp_var))) +
+  geom_line(
+    data = . %>% group_by(exp_var, grouped_scale, response_var) %>%
+      summarize(spearman_rho = mean(spearman_rho)),
+    linewidth = 1.5
+  ) +
+  scale_x_discrete(expand = c(0, 0.4)) +
+  xlab("Wavelet scale of variation") +
+  ylab("Spearman correlation (ρ)") +
+  scale_color_manual(
+    values = driver_colors[drivers],
+    labels = driver_labels[drivers],
+    name = "Explanatory variable"
+  ) +
+  guides(color = guide_legend(ncol = 2)) +
+  theme_hm +
+  facet_grid(response_var~location)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Visualize and save
+spear
+ggsave(spear, filename = "Figures/Spearman correlations.png", width = 4, height = 3.5)
+
+# Now try not grouping
+ungrouped_dfs <- dfs %>%
+  mutate(
+    name = as.character(name),
+    grouped_scale = name,
+    num_value = as.numeric(gsub("[^0-9]", "", name)),
+    text = gsub("[0-9]+ ", "", name),
+    text = factor(text, levels = c("hours", "days"))
+  ) %>%
+  group_by(grouped_scale, Chamber, DateTime_EST, var_name, text, num_value) %>%
+  summarize(
+    value = sum(value, na.rm = T),
+    reconstructed = sum(reconstructed, na.rm = T),
+    .groups = "drop"
+  )
+
+levels <- ungrouped_dfs %>%
+  select(grouped_scale, text, num_value) %>%
+  distinct() %>%
+  arrange(text, num_value)
+
+#trimmed_levels <- levels %>%
+#  filter(num_value < 50)
+
+# Make a wider version
+discrete_scales_ungrouped <- ungrouped_dfs %>%
+  pivot_wider(names_from = var_name, values_from = c(value, reconstructed)) %>%
+  rename_with(~ gsub("value_", "", .x)) %>%
+  left_join(nas_to_add) %>%
+  mutate(
+    CH4_unfilled = ifelse(na_ch4, NA, CH4_umol_m2_h),
+    CO2_unfilled = ifelse(na_co2, NA, CO2_umol_m2_h),
+    GPP_unfilled = ifelse(na_gpp, NA, GPP_umol_m2_h),
+    Chamber = factor(Chamber,
+      levels = chamber_labels
+    ),
+    grouped_scale = factor(grouped_scale,
+      levels = unique(levels$grouped_scale)
+    )
+  ) %>%
+  filter(!is.na(grouped_scale)) %>%
+  select(-na_ch4, -na_co2, -na_gpp, -text, -num_value)
+
+# Separate explanatory variables
+discrete_scales_exp_ungrouped <- discrete_scales_ungrouped %>%
+  dplyr::select(-matches("CO2_unfilled|CH4_unfilled|CH4_umol_m2_h|GPP_unfilled|recon")) %>%
+  pivot_longer(
+    cols = -c(grouped_scale, Chamber, DateTime_EST),
+    names_to = "exp_var", values_to = "exp_var_value"
+  ) %>%
+  filter(!is.na(exp_var_value)) %>%
+  rename(grouped_scale_exp = grouped_scale)
+
+# Calculate correlations
+spearman_corrs_ungrouped <- discrete_scales_ungrouped %>%
+  dplyr::select(c(grouped_scale, Chamber, DateTime_EST, CH4_umol_m2_h)) %>%
+  left_join(discrete_scales_exp_ungrouped, relationship = "many-to-many") %>%
+  filter(
+    !is.na(exp_var_value),
+    !is.na(CH4_umol_m2_h)
+  ) %>%
+  group_by(Chamber, grouped_scale, exp_var, grouped_scale_exp) %>%
+  summarize(
+    spearman_rho = cor(exp_var_value, CH4_umol_m2_h,
+      method = "spearman",
+      use = "complete.obs"
+    ),
+    spearman_rho2 = spearman_rho^2,
+    abs_rho = abs(spearman_rho),
+    .groups = "drop"
+  ) %>%
+  filter(
+    grouped_scale == grouped_scale_exp
+  )
+
+# Plot correlations
+spear_ungrouped <- spearman_corrs_ungrouped %>%
+  ggplot(aes(
+    x = grouped_scale,
+    y = spearman_rho,
+    color = exp_var,
+    group = exp_var
+  )) +
+  geom_hline(color = "grey50", yintercept = 0) +
+  geom_line(alpha = 0.1, aes(group = paste0(Chamber, exp_var))) +
+  geom_line(
+    data = . %>% group_by(exp_var, grouped_scale) %>%
+      summarize(spearman_rho = mean(spearman_rho)),
+    linewidth = 1.5
+  ) +
+  scale_x_discrete(expand = c(0, 0.4)) +
+  xlab("Wavelet scale of variation") +
+  ylab("Spearman correlation (ρ)") +
+  scale_color_manual(
+    values = driver_colors[drivers],
+    labels = driver_labels[drivers],
+    name = "Explanatory variable"
+  ) +
+  guides(color = guide_legend(ncol = 2)) +
+  theme_hm +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Visualize and save
+spear_ungrouped
+ggsave(spear_ungrouped, filename = "Figures/Spearman correlations ungrouped.png", width = 4, height = 4)
+```
+
+Summary without grouping
+
+```{r}
+ungrouped_pct_var <- ungrouped_dfs %>%
+  filter(var_name %in% c("CH4_umol_m2_h", "CO2_umol_m2_h")) %>%
+  group_by(grouped_scale, Chamber, var_name) %>%
+  summarize(
+    var = var(value, na.rm = T),
+    .groups = "drop"
+  ) %>%
+  group_by(Chamber, var_name) %>%
+  mutate(tot_var = sum(var, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(
+    Chamber = factor(Chamber,
+      levels = chamber_labels
+    )
+  )
+
+levels <- ungrouped_dfs %>%
+  select(grouped_scale, text, num_value) %>%
+  distinct() %>%
+  arrange(text, num_value)
+
+ungrouped_pct_var %>%
+  mutate(location = sub("[0-9]+", "", Chamber),
+         ch_n = sub("[a-z]+", "", Chamber),
+    grouped_scale = factor(grouped_scale,
+      levels = unique(levels$grouped_scale)
+    )
+         ) %>%
+  ggplot(aes(x = grouped_scale, y = var/tot_var, group = ch_n, color = ch_n))+
+  geom_line()+
+  ylab("Proportion of total variance")+
+  facet_grid(var_name~location)+
+  scale_color_manual(values = color.gradient, name = "Chamber")+
+  theme_hm+
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+ungrouped_pct_var %>%
+  mutate(location = sub("[0-9]+", "", Chamber),
+         ch_n = sub("[a-z]+", "", Chamber),
+    grouped_scale = factor(grouped_scale,
+      levels = unique(levels$grouped_scale)
+    )
+         ) %>%
+  ggplot(aes(x = grouped_scale, y = var, group = ch_n, color = ch_n))+
+  geom_line()+
+  ylab("Total variance")+
+  facet_grid(var_name~location, scales = "free_y")+
+  scale_color_manual(values = color.gradient, name = "Chamber")+
+  theme_hm+
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
