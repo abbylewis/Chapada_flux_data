@@ -35,6 +35,35 @@ met <- read_csv("processed_data/met_2025_dashboard.csv") %>%
          !duplicated(TIMESTAMP)) %>%
   select(-TIMESTAMP)
 
+teros <- read_csv("processed_data/teros_2025_dashboard.csv") %>%
+  mutate(
+    TIMESTAMP = force_tz(TIMESTAMP, tzone = "EST"),
+    teros_time = TIMESTAMP,
+    chamber = paste0(location, chamber*10)) %>%
+  filter(!var == "air_temperature") %>%
+  pivot_wider(names_from = var, values_from = value) %>%
+  filter(!is.na(TIMESTAMP)) %>%
+  select(-TIMESTAMP, -location) #location is encoded in chamber
+
+teros_clean <- teros %>%
+  group_by(chamber) %>%
+  arrange(teros_time) %>%
+  mutate(
+    volumetric_water_content = if_else(volumetric_water_content < 0,
+                                       NA_real_, volumetric_water_content,
+                                       missing = NA_real_),
+    rolling_sd = RcppRoll::roll_sd(
+      volumetric_water_content, 
+      weights = c(rep(1/10, 5), 0, rep(1/10, 5)), normalize = F,
+      fill = NA),
+    rolling_mean = RcppRoll::roll_mean(
+      volumetric_water_content, 
+      weights = c(rep(1/10, 5), 0, rep(1/10, 5)), normalize = TRUE,
+      fill = NA),
+    outlier = abs(volumetric_water_content - rolling_mean) > 3 * rolling_sd,
+    volumetric_water_content = if_else(outlier, NA_real_, volumetric_water_content)
+  )
+
 #QAQC
 filt <- target %>%
   ungroup() %>%
@@ -72,10 +101,12 @@ df <- filt %>%
 # Format
 df$DateTime <- as.POSIXct(df$flux_time, tz = "EST")
 met$DateTime <- as.POSIXct(met$temp_time, tz = "EST")
+teros_clean$DateTime <- as.POSIXct(teros_clean$teros_time, tz = "EST")
 
 # Convert to data.table
 setDT(df) 
 setDT(met)
+setDT(teros_clean)
 
 # Set keys: DateTime is what will be used to join fluxes with met
 setkey(df, DateTime)
@@ -238,6 +269,9 @@ grid <- merged[, make_grid(.SD), by = chamber]
 
 setkey(merged, chamber, DateTime)
 setkey(grid, chamber, DateTime)
+setkey(teros_clean, chamber, DateTime)
+
+
 merged_grid <- merged[grid, roll = "nearest"] #grab nearest observation
 #has to be within 65 min
 merged_grid[, time_diff := abs(DateTime - flux_time)]
@@ -246,9 +280,14 @@ merged_grid[time_diff > (6750/2), (cols) := NA]
 merged_grid[, c("Ta", "PAR") := NULL]
 
 # Match meteorological drivers by nearest time
-merged_grid_final <- met[
+merged_grid_met <- met[
   merged_grid,
   on = .(DateTime),
+  roll = "nearest"
+]
+merged_grid_final <- teros_clean[
+  merged_grid_met,
+  on = .(chamber, DateTime),
   roll = "nearest"
 ]
 
@@ -259,8 +298,13 @@ setnames(
 )
 
 merged_grid_final[
-  abs(temp_time - DateTime) > 24 * 60 * 60, # Soil temp changes very slowly. 1.5 days is okay
-  Ta := NA_real_
+  abs(temp_time - DateTime) > 2 * 60 * 60, # air temp and PAR need to be within 2hr
+  (c("Ta", "PAR")) := NA_real_
+]
+
+merged_grid_final[
+  abs(teros_time - DateTime) > 24 * 60 * 60, # VWC and EC need to be within 1d
+  (c("electrical_conductivity", "volumetric_water_content")) := NA_real_
 ]
 
 for (ch in chambers) {

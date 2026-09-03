@@ -390,6 +390,7 @@ ungrouped_pct_var %>%
   ggplot(aes(x = grouped_scale, y = var/tot_var, group = ch_n, color = ch_n))+
   geom_line()+
   ylab("Proportion of total variance")+
+  xlab("Wavelet scale")+
   facet_grid(var_name~location)+
   scale_color_manual(values = color.gradient, name = "Chamber")+
   theme_hm+
@@ -405,6 +406,7 @@ ungrouped_pct_var %>%
   ggplot(aes(x = grouped_scale, y = var, group = ch_n, color = ch_n))+
   geom_line()+
   ylab("Total variance")+
+  xlab("Wavelet scale")+
   facet_grid(var_name~location, scales = "free_y")+
   scale_color_manual(values = color.gradient, name = "Chamber")+
   theme_hm+
