@@ -78,7 +78,7 @@ train <- ch4[is_day == TRUE & !is.na(GPP)]
 
 rf_gpp_models <- lapply(split(train, ~train$location + train$Fluxing_Chamber), function(dt_ch) {
   randomForest(
-    GPP ~ Ta + PAR + yday + Reco,
+    GPP ~ Ta + PAR + yday + Reco + volumetric_water_content,
     data = dt_ch,
     na.action = na.omit,
     ntree = 500
@@ -133,7 +133,7 @@ train <- ch4[!is.na(CH4)]
 
 rf_ch4_models <- lapply(split(train, ~train$location + train$Fluxing_Chamber), function(dt_ch) {
   randomForest(
-    CH4 ~ Ta + PAR + GPP_filled + Reco + yday,
+    CH4 ~ Ta + PAR + GPP_filled + Reco + volumetric_water_content + yday,
     data = dt_ch,
     na.action = na.omit,
     ntree = 500
@@ -265,6 +265,6 @@ ch4_out <- ch4 %>%
          CH4_umol_m2_h, CH4_umol_m2_h_not_gapfilled, CH4_R2, CH4_se, Ebullition_yn,
          CO2_umol_m2_h, CO2_umol_m2_h_not_gapfilled, CO2_R2, CO2_se, 
          Reco_umol_m2_h, GPP_umol_m2_h, GPP_umol_m2_h_not_gapfilled, 
-         AirTemp_C, SlrFD_W_Avg) 
+         AirTemp_C, SlrFD_W_Avg, volumetric_water_content, electrical_conductivity) 
 
 write_csv(ch4_out, here::here("processed_data", "L2- partitioned_and_gap_filled.csv"))

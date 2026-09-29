@@ -55,7 +55,9 @@ drivers <- c(
   "AirTemp_C",
   "GPP_umol_m2_h",
   "Reco_umol_m2_h", 
-  "SlrFD_W_Avg"
+  "SlrFD_W_Avg",
+  "volumetric_water_content",
+  "electrical_conductivity"
 )
 
 # Set how drivers should be referenced in plots
@@ -64,7 +66,9 @@ driver_labels <- c(
   GPP_umol_m2_h = "GPP",
   GPP_unfilled = "GPP",
   Reco_umol_m2_h = "Reco",
-  SlrFD_W_Avg = "Solar radiation"
+  SlrFD_W_Avg = "Solar radiation",
+  volumetric_water_content = "VWC",
+  electrical_conductivity = "EC"
 )
 
 # Set driver colors
@@ -73,7 +77,9 @@ driver_colors <- c(
   GPP_umol_m2_h = "#3BAA5D",
   GPP_unfilled = "#3BAA5D",
   Reco_umol_m2_h = "#264653",
-  SlrFD_W_Avg = "gold"
+  SlrFD_W_Avg = "gold",
+  volumetric_water_content = "#4455bb",
+  electrical_conductivity = "grey50"
 )
 
 # Run separate wavelet analyses across all treatments and sites

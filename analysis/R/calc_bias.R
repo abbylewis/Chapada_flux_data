@@ -15,7 +15,7 @@ calc_bias <- function(interval, only_time = T) {
 
   # Run simulation
   out_all <- df %>%
-    group_by(get(bin_dur), Chamber) %>%
+    group_by(location, get(bin_dur), Fluxing_Chamber) %>%
     reframe(
       n = n(),
       rep = seq_len(reps),
@@ -31,7 +31,7 @@ calc_bias <- function(interval, only_time = T) {
   if(!only_time){
     out_daytime <- df %>%
       filter(hour(DateTime_local) %in% c(9:17)) %>%
-      group_by(get(bin_dur), Chamber) %>%
+      group_by(location, get(bin_dur), Fluxing_Chamber) %>%
       reframe(
         n = n(),
         rep = seq_len(reps),
@@ -43,21 +43,7 @@ calc_bias <- function(interval, only_time = T) {
       ) %>%
       mutate(time = "daytime")
     
-    out_wl <- df %>%
-      filter(Depth_cm <= 1) %>%
-      group_by(get(bin_dur), Chamber) %>%
-      reframe(
-        n = n(),
-        rep = seq_len(reps),
-        flux = replicate(
-          reps,
-          mean(sample(CH4_umol_m2_h, samples_per_bin))
-        ),
-        interval = interval
-      ) %>%
-      mutate(time = "waterlevel")
-    
-    out <- bind_rows(out_all, out_daytime, out_wl)
+    out <- bind_rows(out_all, out_daytime)
     
     return(out)
   }

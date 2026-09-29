@@ -27,10 +27,11 @@ make_annual_plot <- function(
   p <- p +
     coord_cartesian(xlim = annual_xlim) +
     scale_x_date(
-      date_breaks = "1 month",
+      date_breaks = "2 month",
       date_labels = "%b"
     ) +
     theme_hm +
+    facet_wrap(~location)+
     theme(
       axis.title.x = element_blank()
     ) +
@@ -58,7 +59,7 @@ make_annual_plot <- function(
       ) +
       scale_color_manual(
         values = color.gradient,
-        name = colour
+        name = "Chamber"
       )
   }
   
@@ -79,10 +80,11 @@ make_focal_plot <- function(
   
   p <- ggplot(data, aes(.data[[x]], .data[[y]])) +
     scale_x_datetime(
-      date_breaks = "3 days",
+      date_breaks = "5 days",
       date_labels = "%d %b"
     ) +
     theme_hm +
+    facet_wrap(~location)+
     theme(
       axis.title.x = element_blank(),
       axis.title.y = element_blank()
