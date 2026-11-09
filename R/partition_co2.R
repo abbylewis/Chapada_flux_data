@@ -123,7 +123,7 @@ merged <- met[
 merged[, met_time_diff := abs(temp_time - flux_time)]
 
 merged[met_time_diff > 30 * 60, # 30 minute window
-       c("AirTC_Avg", "PAR_Den_C_Avg", "Depth_cm") := NA]
+       c("AirT_C_Avg", "PAR_Den_C_Avg", "Depth_cm") := NA]
 
 #Join and format
 chamber_height_high = 100 # cm
