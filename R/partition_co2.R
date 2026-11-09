@@ -152,6 +152,8 @@ merged <- merged %>%
   ungroup() %>%
   select(chamber, DateTime, flux_time, NEE, CH4, PAR, Ta, CH4_R2, CO2_R2, CH4_se, CO2_se, Ebullition_yn)
 
+write_csv(merged, "processed_data/merged.csv")
+
 merged %>%
   group_by(chamber) %>%
   summarize(n = sum(is.na(CH4)))

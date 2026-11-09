@@ -525,6 +525,8 @@ ggsave(with_dist2,
 
 ```{r fig_4}
 # Set simulation specs
+reps <- 10000
+set.seed(4700)
 intervals <- c("monthly")
 
 # Add labels for day, month, week, and fortnight
@@ -552,7 +554,7 @@ to_plot <- df_out %>%
     hot_moments %>% rename(tot_real = annual_flux), # Add totals (calculated high-frequency)
     by = c("Fluxing_Chamber", "location")
   ) %>%
-  mutate(percent_bias = tot_hourly / tot_real * 100 - 100)
+  mutate(percent_bias = tot_hourly)
 
 # Calculate medians
 to_plot_median <- to_plot %>%
